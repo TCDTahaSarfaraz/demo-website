@@ -1,41 +1,65 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+# =========================================================================
+# === DEPENDENCIES: Do not commit packages, they can be reinstalled. =====
+# =========================================================================
+node_modules/
 
-# dependencies
-/node_modules
-/.pnp
-.pnp.*
-.yarn/*
-!.yarn/patches
-!.yarn/plugins
-!.yarn/releases
-!.yarn/versions
+# =========================================================================
+# === BUILD ARTIFACTS: These are generated on the server or locally. ======
+# =========================================================================
+.next/
+out/
 
-# testing
-/coverage
-
-# next.js
-/.next/
-/out/
-
-# production
-/build
-
-# misc
-.DS_Store
-*.pem
-
-# debug
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-.pnpm-debug.log*
-
-# env files (can opt-in for committing if needed)
-.env*
-
-# vercel
-.vercel
-
-# typescript
-*.tsbuildinfo
+# =========================================================================
+# === NEXT.JS & TURBOPACK: Ignore cache and build output folders. =========
+# =========================================================================
+.turbo/
 next-env.d.ts
+
+# =========================================================================
+# === SENSITIVE INFO: Never commit environment variables or secrets. ======
+# =========================================================================
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env # Also ignore the base .env file. Commit .env.example instead.
+
+# =========================================================================
+# === LOGS: Ignore log files from package managers and applications. =====
+# =========================================================================
+npm-debug.log*
+yarn-debug.log
+yarn-error.log
+pnpm-debug.log
+logs
+*.log
+
+# =========================================================================
+# === OPERATING SYSTEM FILES: Ignore system-specific metadata files. =====
+# =========================================================================
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+desktop.ini
+
+# Linux
+*~
+
+# =========================================================================
+# === IDE / EDITOR FILES: Ignore local settings for code editors. =========
+# =========================================================================
+# VSCode
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+
+# JetBrains (WebStorm, etc.)
+.idea/
+
+# =========================================================================
+# === MISCELLANEOUS =====================================================
+# =========================================================================
+# Test coverage reports
+coverage/

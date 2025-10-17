@@ -6,9 +6,9 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 gsap.registerPlugin(ScrollTrigger);
 
-// A simple styled placeholder for logos.
+// Correctly handle logos as styled text placeholders. In a real app, you would use next/image.
 const LogoPlaceholder = ({ text, className = '' }) => (
-    <div className={`client-logo flex items-center justify-center h-16 text-3xl font-bold text-gray-500 hover:text-gray-900 transition-colors ${className}`}>
+    <div className={`client-logo flex items-center justify-center h-16 text-3xl font-bold text-blue-500 hover:text-gray-900 transition-colors ${className}`}>
         {text}
     </div>
 );
@@ -17,6 +17,10 @@ const Clients = () => {
     const sectionRef = useRef(null);
 
     useEffect(() => {
+        // This check prevents GSAP from running twice in development hot-reloads
+        if (sectionRef.current.hasAttribute('data-animated')) return;
+        sectionRef.current.setAttribute('data-animated', 'true');
+        
         const q = gsap.utils.selector(sectionRef);
         gsap.from(q('.client-logo'), {
             scrollTrigger: {
@@ -28,7 +32,8 @@ const Clients = () => {
         });
     }, []);
 
-    const clientLogos = [ "OpenAI", "amazon", "Google", "ANTHROPIC", "MARRIOTT", "shopify", "airbnb", "URBN" ];
+    // Array of client logos to map over, providing a unique key
+    const clientLogogs = [ "OpenAI", "amazon", "Google", "ANTHROPIC", "MARRIOTT", "shopify", "airbnb", "URBN" ];
 
     return (
         <section ref={sectionRef} id="clients" className="bg-white py-24 sm:py-32">
@@ -40,7 +45,7 @@ const Clients = () => {
                     </button>
                 </div>
                 <div className="mx-auto grid max-w-lg grid-cols-2 items-center gap-x-8 gap-y-12 sm:max-w-xl sm:grid-cols-2 lg:mx-0 lg:max-w-none lg:grid-cols-4">
-                    {clientLogos.map((logoText) => (
+                    {clientLogogs.map((logoText) => (
                         <LogoPlaceholder key={logoText} text={logoText} />
                     ))}
                 </div>

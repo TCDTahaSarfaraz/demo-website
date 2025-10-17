@@ -1,82 +1,67 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
-import { gsap } from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import React from "react";
+import { motion } from "framer-motion";
+import { LampContainer } from "../components/ui/lamp";
+// 'useInView' is not needed here, as GSAP's ScrollTrigger handles this logic.
+import { gsap } from "gsap";
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
-gsap.registerPlugin(ScrollTrigger)
+gsap.registerPlugin(ScrollTrigger);
 
 const Contact = () => {
-  const sectionRef = useRef(null)
-  const q = gsap.utils.selector(sectionRef)
-  const buttonRef = useRef(null)
-
-  useEffect(() => {
-    const tl = gsap.timeline({
-      scrollTrigger: {
-        trigger: sectionRef.current,
-        start: 'top center',
-      },
-    })
-
-    tl.fromTo(
-      q('h2'),
-      { opacity: 0, y: 50 },
-      { opacity: 1, y: 0, duration: 1, ease: 'power3.out' }
-    ).fromTo(
-      q('.form-field'),
-      { opacity: 0, y: 50 },
-      { opacity: 1, y: 0, duration: 1, ease: 'power3.out', stagger: 0.2 }
-    )
-
-    const button = buttonRef.current
-    const buttonTween = gsap.to(button, {
-      scale: 1.05,
-      backgroundColor: '#4338ca',
-      duration: 0.3,
-      paused: true,
-      ease: 'power2.inOut',
-    })
-
-    button.addEventListener('mouseenter', () => buttonTween.play())
-    button.addEventListener('mouseleave', () => buttonTween.reverse())
-
-    return () => {
-      button.removeEventListener('mouseenter', () => buttonTween.play())
-      button.removeEventListener('mouseleave', () => buttonTween.reverse())
-    }
-  }, [])
+  const formRef = React.useRef(null);
+  
+  React.useEffect(() => {
+    // This guard prevents re-animation in development
+    if (formRef.current.hasAttribute('data-animated')) return;
+    formRef.current.setAttribute('data-animated', 'true');
+    
+    // GSAP animation for the form using ScrollTrigger
+    gsap.from(formRef.current, {
+        scrollTrigger: {
+            trigger: formRef.current,
+            start: "top 85%", 
+            toggleActions: "play none none none"
+        },
+        opacity: 0,
+        y: 50,
+        duration: 1,
+        ease: 'power3.out'
+    });
+  }, []);
 
   return (
-    <section id="contact" ref={sectionRef} className="min-h-screen flex items-center justify-center">
-      <div className="text-center">
-        <h2 className="text-4xl font-bold mb-8">Contact Us</h2>
-        <div className="max-w-xl mx-auto">
-          <form className="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-md">
-            <div className="relative form-field mb-8">
-              <input type="text" id="name" className="peer w-full p-2 rounded-md bg-gray-200 dark:bg-gray-700 border-2 border-transparent focus:border-blue-500 focus:outline-none" placeholder=" " />
-              <label htmlFor="name" className="absolute left-2 -top-3.5 text-gray-500 text-sm transition-all peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400 peer-placeholder-shown:top-2 peer-focus:-top-3.5 peer-focus:text-blue-500 peer-focus:text-sm">Name</label>
-            </div>
-            <div className="relative form-field mb-8">
-              <input type="email" id="email" className="peer w-full p-2 rounded-md bg-gray-200 dark:bg-gray-700 border-2 border-transparent focus:border-blue-500 focus:outline-none" placeholder=" " />
-              <label htmlFor="email" className="absolute left-2 -top-3.5 text-gray-500 text-sm transition-all peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400 peer-placeholder-shown:top-2 peer-focus:-top-3.5 peer-focus:text-blue-500 peer-focus:text-sm">Email</label>
-            </div>
-            <div className="relative form-field mb-8">
-              <textarea id="message" rows="4" className="peer w-full p-2 rounded-md bg-gray-200 dark:bg-gray-700 border-2 border-transparent focus:border-blue-500 focus:outline-none" placeholder=" "></textarea>
-              <label htmlFor="message" className="absolute left-2 -top-3.5 text-gray-500 text-sm transition-all peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400 peer-placeholder-shown:top-2 peer-focus:-top-3.5 peer-focus:text-blue-500 peer-focus:text-sm">Message</label>
-            </div>
-            <button
-              ref={buttonRef}
-              type="submit"
-              className="form-field bg-blue-500 text-white font-bold py-2 px-4 rounded"
-            >
-              Send Message
-            </button>
-          </form>
-        </div>
+    <section id="contact" className="bg-black">
+      <LampContainer>
+        <motion.h1
+          initial={{ opacity: 0.5, y: 100 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{
+            delay: 0.3,
+            duration: 0.8,
+            ease: "easeInOut",
+          }}
+          className="bg-gradient-to-br from-slate-300 to-slate-500 py-4 bg-clip-text text-center text-4xl font-medium tracking-tight text-transparent md:text-7xl">
+          Let's build the future, <br /> together.
+        </motion.h1>
+      </LampContainer>
+
+      {/* --- Contact Form Section --- */}
+      <div ref={formRef} className="bg-black text-white pt-12 pb-24 px-6 -mt-40 relative z-10">
+          <div className="max-w-xl mx-auto">
+              <form className="space-y-6">
+                  <input type="text" placeholder="Full Name" className="w-full bg-gray-900/80 border border-gray-700 rounded-md p-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 transition-all"/>
+                  <input type="email" placeholder="Email Address" className="w-full bg-gray-900/80 border border-gray-700 rounded-md p-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 transition-all"/>
+                  <textarea placeholder="Your message..." className="w-full bg-gray-900/80 border border-gray-700 rounded-md p-3 h-32 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 transition-all"></textarea>
+                  <button type="submit" className="w-full bg-gradient-to-r from-cyan-500 to-blue-600 font-semibold py-3 rounded-md hover:opacity-90 transition-opacity shadow-lg">
+                      Send Message
+                  </button>
+              </form>
+          </div>
       </div>
     </section>
-  )
+  );
 }
 
-export default Contact
+export default Contact;

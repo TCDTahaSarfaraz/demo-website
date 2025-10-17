@@ -1,34 +1,20 @@
-import Header from '@/app/components/Navbar';
-import Footer from '@/app/components/Footer';
-import Home from '@/app/components/Home';
-import Clients from '@/app/components/Clients';
-import About from '@/app/components/About';
-import Testimonials from '@/app/components/Testimonials';
-import Career from '@/app/components/Career';
-import Contact from '@/app/components/Contact';
+import Home from './components/Home';
+import Clients from './components/Clients';
+import About from './components/About';
+import Testimonials from './components/Testimonials';
+import Career from './components/Career';
+import Contact from './components/Contact';
+import PageTransition from './page-transition'; // <-- Import the animation wrapper
 
 export default function Page() {
-return (
-<div>
-<Header />
-
-<main id="main-content">
-
-        <Home />
-        
-        <Clients />
-
-        <About />
-
-        <Testimonials />
-
-        <Career />
-
-        <Contact />
-
-      </main>
-
-      <Footer />
-    </div>
-  );
+  return (
+    <>
+      <Home />
+      <Clients />
+      <About />
+      <Testimonials />
+      <Career />
+      <Contact />
+</>
+  )
 }
