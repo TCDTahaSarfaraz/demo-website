@@ -1,47 +1,52 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
-import { gsap } from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import { useEffect, useRef } from 'react';
+import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
-gsap.registerPlugin(ScrollTrigger)
+gsap.registerPlugin(ScrollTrigger);
+
+// A simple styled placeholder for logos.
+const LogoPlaceholder = ({ text, className = '' }) => (
+    <div className={`client-logo flex items-center justify-center h-16 text-3xl font-bold text-gray-500 hover:text-gray-900 transition-colors ${className}`}>
+        {text}
+    </div>
+);
 
 const Clients = () => {
-  const sectionRef = useRef(null)
-  const q = gsap.utils.selector(sectionRef)
+    const sectionRef = useRef(null);
 
-  useEffect(() => {
-    const tl = gsap.timeline({
-      scrollTrigger: {
-        trigger: sectionRef.current,
-        start: 'top center',
-      },
-    })
+    useEffect(() => {
+        const q = gsap.utils.selector(sectionRef);
+        gsap.from(q('.client-logo'), {
+            scrollTrigger: {
+                trigger: sectionRef.current,
+                start: 'top 85%',
+                once: true,
+            },
+            opacity: 0, y: 30, stagger: 0.1, duration: 0.8,
+        });
+    }, []);
 
-    tl.fromTo(
-      q('h2'),
-      { opacity: 0, y: 50 },
-      { opacity: 1, y: 0, duration: 1, ease: 'power3.out' }
-    ).fromTo(
-      q('.client'),
-      { opacity: 0, y: 50 },
-      { opacity: 1, y: 0, duration: 1, ease: 'power3.out', stagger: 0.2 }
-    )
-  }, [])
+    const clientLogos = [ "OpenAI", "amazon", "Google", "ANTHROPIC", "MARRIOTT", "shopify", "airbnb", "URBN" ];
 
-  return (
-    <section id="clients" ref={sectionRef} className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900">
-      <div className="text-center">
-        <h2 className="text-4xl font-bold mb-8">Our Clients</h2>
-        <div className="flex justify-center space-x-8">
-          <div className="client text-2xl font-bold">Client 1</div>
-          <div className="client text-2xl font-bold">Client 2</div>
-          <div className="client text-2xl font-bold">Client 3</div>
-          <div className="client text-2xl font-bold">Client 4</div>
-        </div>
-      </div>
-    </section>
-  )
-}
+    return (
+        <section ref={sectionRef} id="clients" className="bg-white py-24 sm:py-32">
+            <div className="container mx-auto px-6 lg:px-8">
+                <div className="flex flex-col sm:flex-row items-center justify-start gap-4 mb-20">
+                    <input type="email" placeholder="Email address" className="w-full sm:w-auto flex-grow px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none"/>
+                    <button className="w-full sm:w-auto bg-gray-900 text-white font-semibold px-6 py-3 rounded-lg hover:bg-gray-800 transition-colors">
+                        Start now &rarr;
+                    </button>
+                </div>
+                <div className="mx-auto grid max-w-lg grid-cols-2 items-center gap-x-8 gap-y-12 sm:max-w-xl sm:grid-cols-2 lg:mx-0 lg:max-w-none lg:grid-cols-4">
+                    {clientLogos.map((logoText) => (
+                        <LogoPlaceholder key={logoText} text={logoText} />
+                    ))}
+                </div>
+            </div>
+        </section>
+    );
+};
 
-export default Clients
+export default Clients;

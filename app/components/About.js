@@ -14,15 +14,14 @@ const TaxIcon = () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none
 const RadarIcon = () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 3v3m0 12v3M5.6 5.6l2.1 2.1m8.5 8.5 2.1 2.1" stroke="#ef4444" strokeWidth="2" strokeLinecap="round"/><circle cx="12" cy="12" r="3" stroke="#ef4444" strokeWidth="2"/></svg>;
 const BGIcon = () => <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="#E0E6EB" strokeWidth="1.5" strokeLinejoin="round"/></svg>;
 
-// --- Reusable Block Components ---
+
 const ProductBlock = ({ id, children, className = '', icon }) => (
-    <div id={id} className={`product-block ${className} absolute flex items-center justify-center w-20 h-20 bg-white border border-gray-200/80 rounded-xl shadow-lg opacity-0`}>
+    <div id={id} className={`product-block ${className} absolute flex items-center justify-center w-20 h-20 bg-white border border-gray-200/80 rounded-xl shadow-xl transition-shadow duration-300 hover:shadow-2xl`}>
         <div className="text-center text-stripe-dark"><div className="flex justify-center mb-1.5">{icon}</div><span className="text-xs font-semibold">{children}</span></div>
     </div>
 );
-const BackgroundIcon = ({ i }) => <div key={i} className="w-20 h-20 flex items-center justify-center opacity-60"><BGIcon/></div>;
+const BackgroundIcon = () => <div className="w-20 h-20 flex items-center justify-center opacity-60"><BGIcon/></div>;
 
-// --- Main About Component ---
 const About = () => {
     const sectionRef = useRef(null);
     const isAnimationSetup = useRef(false);
@@ -32,40 +31,39 @@ const About = () => {
         isAnimationSetup.current = true;
 
         const q = gsap.utils.selector(sectionRef);
-
-        const lines = q('.animated-line');
-        lines.forEach(line => gsap.set(line, { strokeDasharray: line.getTotalLength(), strokeDashoffset: line.getTotalLength() }));
         
-        gsap.set(q('.product-block'), { opacity: 0, scale: 0.9 });
-
-        const tl = gsap.timeline({
-            scrollTrigger: {
-                trigger: sectionRef.current,
-                start: 'top 50%',
-                end: 'bottom center',
-                toggleActions: 'play none none reverse',
-            },
-            defaults: { duration: 1, ease: 'power2.out' },
+        const paths = q('.animated-line');
+        const pathData = {};
+        paths.forEach(p => { 
+            const len = p.getTotalLength();
+            pathData[p.id] = { path: p, length: len };
+            gsap.set(p, { strokeDasharray: len, strokeDashoffset: len });
         });
-
-        // Helper functions for a cleaner timeline
-        const reveal = () => ({ opacity: 1, scale: 1, stagger: 0.2 });
-        const hide = () => ({ opacity: 0, scale: 0.9, duration: 0.4 });
-        const draw = () => ({ strokeDashoffset: 0 });
-
-        // --- SCENE 1: Payments, Connect, Terminal ---
-        tl.add("scene1")
-          .to([q('#payments'), q('#connect'), q('#terminal')], reveal(), "scene1")
-          .to(q('#line-p-c'), draw(), "scene1+=0.3")
-          .to(q('#line-p-t'), draw(), "<0.1");
         
-        // --- SCENE 2: Payments, Tax, Radar ---
-        tl.add("scene2", "+=1.5")
-          .to([q('#connect'), q('#terminal'), q('.line-s1')], hide(), "scene2")
-          .to([q('#tax'), q('#radar')], reveal(), "scene2+=0.3")
-          .to(q('#line-p-tax'), draw(), "scene2+=0.5")
-          .to(q('#line-p-radar'), draw(), "<0.1");
-          
+        gsap.set(q('.product-block'), { opacity: 0, scale: 0.95 });
+        gsap.to(q('.product-block'), {
+            scrollTrigger: { trigger: sectionRef.current, start: 'top 80%', once: true },
+            opacity: 1, scale: 1, stagger: 0.1, duration: 0.8, ease: 'power2.out',
+        });
+        
+        const loopTl = gsap.timeline({
+            repeat: -1,
+            defaults: { duration: 1, ease: 'none' },
+            scrollTrigger: { trigger: sectionRef.current, start: 'top center', toggleActions: 'play pause resume pause' }
+        });
+        
+        const run = (lineId, gradId) => {
+            loopTl.fromTo(pathData[lineId].path, { strokeDashoffset: pathData[lineId].length }, { strokeDashoffset: 0, ease: 'power1.inOut', duration: 1.2 }, '<')
+                  .fromTo(q(`#${gradId} stop`)[0], { attr: { offset: "0" } }, { attr: { offset: "1" }, duration: 1.2, ease: 'power1.inOut' }, "<")
+                  .fromTo(q(`#${gradId} stop`)[1], { attr: { offset: "0" } }, { attr: { offset: "1" }, duration: 1.2, ease: 'power1.inOut' }, "<")
+                  .to(pathData[lineId].path, { strokeDashoffset: -pathData[lineId].length, ease: 'power1.in', duration: 0.8 }, '>');
+        };
+
+        run('line-p-c', 'g-blue-purple');
+        run('line-p-t', 'g-green-purple');
+        run('line-p-tax', 'g-pink-purple');
+        run('line-p-radar', 'g-red-purple');
+
     }, []);
 
     return (
@@ -81,7 +79,7 @@ const About = () => {
                     <div className="relative w-[500px] h-[500px]">
 
                         <div className="absolute inset-0 grid grid-cols-4 gap-4">
-                            {Array.from({ length: 16 }).map((_, i) => <BackgroundIcon i={i}/>)}
+                             {Array.from({ length: 16 }).map((_, i) => <BackgroundIcon key={i} />)}
                         </div>
 
                         <ProductBlock id="payments" className="top-[190px] left-[190px]" icon={<PaymentsIcon/>}>Payments</ProductBlock>
@@ -92,17 +90,16 @@ const About = () => {
                         
                         <svg className="absolute top-0 left-0 w-full h-full overflow-visible" fill="none">
                             <defs>
-                                <linearGradient id="g-blue-purple"><stop stopColor="#60a5fa"/><stop offset="1" stopColor="#a78bfa"/></linearGradient>
-                                <linearGradient id="g-green-purple"><stop stopColor="#34d399"/><stop offset="1" stopColor="#a78bfa"/></linearGradient>
-                                <linearGradient id="g-pink-purple"><stop stopColor="#f472b6"/><stop offset="1" stopColor="#a78bfa"/></linearGradient>
-                                <linearGradient id="g-red-purple"><stop stopColor="#ef4444" stopColorOpacity="0.8"/><stop offset="1" stopColor="#a78bfa"/></linearGradient>
+                                 <linearGradient id="g-blue-purple"><stop stopColor="#60a5fa"/><stop stopColor="#a78bfa" offset="0"/></linearGradient>
+                                <linearGradient id="g-green-purple"><stop stopColor="#34d399"/><stop stopColor="#a78bfa" offset="0"/></linearGradient>
+                                <linearGradient id="g-pink-purple"><stop stopColor="#f472b6"/><stop stopColor="#a78bfa" offset="0"/></linearGradient>
+                                <linearGradient id="g-red-purple"><stop stopColor="#ef4444" stopOpacity="0.8"/><stop stopColor="#a78bfa" offset="0"/></linearGradient>
                             </defs>
                             
-                            <path id="line-p-c" className="animated-line line-s1" d="M 190 230 C 130 230, 90 230, 80 230" stroke="url(#g-blue-purple)" strokeWidth="3" strokeLinecap="round"/>
-                            <path id="line-p-t" className="animated-line line-s1" d="M 230 270 C 230 330, 230 370, 230 380" stroke="url(#g-green-purple)" strokeWidth="3" strokeLinecap="round"/>
-                            
-                            <path id="line-p-tax" className="animated-line line-s2" d="M 230 190 C 230 130, 230 90, 230 80" stroke="url(#g-pink-purple)" strokeWidth="3" strokeLinecap="round"/>
-                            <path id="line-p-radar" className="animated-line line-s2" d="M 270 260 C 330 300, 370 350, 380 380" stroke="url(#g-red-purple)" strokeWidth="3" strokeLinecap="round"/>
+                            <path id="line-p-c" className="animated-line" d="M 190 230 C 130 230, 90 230, 80 230" stroke="url(#g-blue-purple)" strokeWidth="3" strokeLinecap="round"/>
+                            <path id="line-p-t" className="animated-line" d="M 230 270 C 230 330, 230 370, 230 380" stroke="url(#g-green-purple)" strokeWidth="3" strokeLinecap="round"/>
+                            <path id="line-p-tax" className="animated-line" d="M 230 190 C 230 130, 230 90, 230 80" stroke="url(#g-pink-purple)" strokeWidth="3" strokeLinecap="round"/>
+                            <path id="line-p-radar" className="animated-line" d="M 270 260 C 330 300, 370 350, 380 380" stroke="url(#g-red-purple)" strokeWidth="3" strokeLinecap="round"/>
                         </svg>
                     </div>
                 </div>

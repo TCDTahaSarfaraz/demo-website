@@ -1,23 +1,22 @@
-@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 html {
+  
   scroll-behavior: smooth;
 }
 
 body {
-  font-family: 'Manrope', sans-serif;
-  background-color: #F6F8FA; /* A very light gray, similar to Stripe */
-  color: #0A2540; /* Stripe's dark blue for text */
+ 
+  background-color: #F6F8FA; 
+  color: #0A2540;            
 }
 
-/* Custom class for sections to ensure they take up screen height */
+
 .section-container {
   min-height: 100vh;
-  padding-top: 80px; /* Offset for the navbar */
+  padding-top: 80px; 
   display: flex;
   align-items: center;
   justify-content: center;
