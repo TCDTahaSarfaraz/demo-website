@@ -1,10 +1,11 @@
+
+
 import Home from './components/Home';
 import Clients from './components/Clients';
-import About from './components/About';
+import About from './components/About'; // Next.js handles this server-to-client transition automatically.
 import Testimonials from './components/Testimonials';
 import Career from './components/Career';
 import Contact from './components/Contact';
-import PageTransition from './page-transition'; // <-- Import the animation wrapper
 
 export default function Page() {
   return (
@@ -15,6 +16,6 @@ export default function Page() {
       <Testimonials />
       <Career />
       <Contact />
-</>
-  )
+    </>
+  );
 }

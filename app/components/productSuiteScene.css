@@ -1,0 +1,75 @@
+/* File: app/components/productSuiteScene.css - THE CORRECT AND FINAL VERSION */
+
+/* The Stage is now a fluid container that respects its parent */
+.animation-stage {
+    position: relative;
+    width: 100%;
+    /* This is the key: it forces a responsive aspect ratio */
+    aspect-ratio: 4 / 3;
+    max-width: 900px; /* Still have a max-width for very large screens */
+    margin: 0 auto;
+    user-select: none;
+}
+.background-grid {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    /* Responsive grid columns */
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+}
+@media (min-width: 640px) {
+    .background-grid { grid-template-columns: repeat(5, 1fr); }
+}
+
+.grid-box { border-radius: 1rem; border: 1px solid var(--border); }
+
+
+/* --- PROFESSIONAL ID-DRIVEN LAYOUT --- */
+/* Positions are now percentages, which scale with the container */
+#billing    { top: 5%; left: 22%; }  #invoicing  { top: 5%; left: 47%; }
+#payments   { top: 30%; left: 72%; } #capital    { top: 55%; left: 22%; }
+#terminal   { top: 80%; left: 35%; } #radar      { top: 55%; left: 72%; }
+#issuing    { top: 30%; left: 50%; } #treasury   { top: 5%; left: 72%; }
+#connect    { top: 30%; left: 2%; }
+
+
+/* --- BOX STYLING --- */
+.product-block {
+    position: absolute;
+    /* Use responsive units for size */
+    width: 12%;
+    height: 12%;
+    min-width: 80px;
+    min-height: 80px;
+    padding: 0.5rem;
+    border-radius: 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    visibility: hidden; /* GSAP controls visibility */
+    z-index: 10;
+    transition: all 0.4s ease;
+    border: 1.5px solid transparent;
+}
+
+/* All other styles (inactive, active, glowing, paths, etc.) remain the same */
+/* They will now work correctly within the responsive container. */
+
+.product-block.is-inactive { background-color: transparent; border-color: var(--border); box-shadow: none; color: color-mix(in srgb, var(--product-color) 50%, #94a3b8); }
+.product-block.is-inactive .icon-container { opacity: 0.6; }
+.product-block.is-inactive .product-label { display: none; }
+.product-block.is-active { background-color: var(--card); border-color: var(--product-color); box-shadow: 0px 10px 20px -8px rgba(37, 51, 84, 0.1); color: var(--product-color); transform: translateY(-2px); z-index: 20; }
+.product-block.is-active .icon-container { opacity: 1; }
+.product-block.is-active .product-label { display: block; }
+.product-block.is-glowing { box-shadow: 0 0 0 4px color-mix(in srgb, var(--product-color) 20%, transparent); border-color: color-mix(in srgb, var(--product-color) 40%, #fff); }
+
+.icon-container { height: 40%; margin-bottom: 0.25rem; }
+.product-label { font-size: 0.7rem; font-weight: 500; color: var(--foreground); white-space: nowrap; text-align: center; }
+
+.svg-path-overlay { position: absolute; inset: 0; pointer-events: none; overflow: visible; }
+.path-background, .path-dash { fill: none; stroke-linecap: round; }
+.path-background { stroke-width: 2.5px; stroke: var(--border); }
+.path-dash { stroke-width: 2.5px; opacity: 0; stroke-dasharray: 10 20; }
