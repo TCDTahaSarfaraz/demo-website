@@ -1,0 +1,34 @@
+/* File: app/components/Clients.css - THE DEFINITIVE FINAL STYLING */
+
+/* The wrapper controls the grid cell's alignment and dimensions. */
+.client-logo-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 4rem; /* 64px - Sets a consistent container size for all logos. */
+}
+
+/* The SVG logo itself. This is the core fix for scaling and hover effects. */
+.client-logo {
+    /* The logo will scale down to fit its container, but never scale up, preserving aspect ratio. */
+    max-height: 100%;
+    max-width: 100%;
+    height: auto;
+    width: auto;
+
+    /*
+     * == THE CRITICAL FIX IS HERE ==
+     * Default State: The logo is now shown in its original, full brand color.
+     */
+    filter: saturate(1) opacity(1);
+    
+    /* A smooth, professional transition for the hover effect. */
+    transition: filter 0.3s ease-in-out;
+}
+
+/* 
+ * Active State (on Hover): The logo now fades to a desaturated, semi-transparent state.
+ */
+.client-logo-wrapper:hover .client-logo {
+    filter: saturate(0) opacity(0.6);
+}
