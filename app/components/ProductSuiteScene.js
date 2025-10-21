@@ -1,5 +1,3 @@
-// File: app/components/ProductSuiteScene.js - THE DEFINITIVE, FLAWLESS VERSION
-
 'use client';
 
 import React, { useEffect, useRef, useState, useLayoutEffect } from 'react';
@@ -37,15 +35,15 @@ const allBoxesData = [
     { id: 'tax', label: 'Tax', color: '#7c3aed', Icon: (p) => <svg viewBox="0 0 24 24" width="24" height="24" {...p}><path d="M9 14.5c.83 0 1.5.67 1.5 1.5s-.67 1.5-1.5 1.5S7.5 16.83 7.5 16s.67-1.5 1.5-1.5M15 14.5c.83 0 1.5.67 1.5 1.5s-.67 1.5-1.5 1.5-1.5-.67-1.5-1.5.67-1.5 1.5-1.5M16 8H8v4h8V8Zm4-4h-2V2h-2v2H8V2H6v2H4v16h16V4Z" fill="currentColor"/></svg> }
 ];
 const animationPairsData = [
-    { from: 'billing', to: 'invoicing', gradient: ['#fde047', '#f59e0b'], curve: false },
-    { from: 'invoicing', to: 'connect', gradient: ['#f59e0b', '#4f46e5'], curve: false },
-    { from: 'connect', to: 'terminal', gradient: ['#4f46e5', '#10b981'], curve: false },
-    { from: 'terminal', to: 'payments', gradient: ['#10b981', '#7c3aed'], curve: false },
-    { from: 'payments', to: 'capital', gradient: ['#7c3aed', '#22c55e'], curve: false },
-    { from: 'capital', to: 'issuing', gradient: ['#22c55e', '#8b5cf6'], curve: false },
-    { from: 'issuing', to: 'radar', gradient: ['#8b5cf6', '#ef4444'], curve: false },
-    { from: 'radar', to: 'tax', gradient: ['#ef4444', '#7c3aed'], curve: false },
-    { from: 'tax', to: 'treasury', gradient: ['#7c3aed', '#06b6d4'], curve: false }
+    { from: 'billing', to: 'invoicing', gradient: ['#fde047', '#f59e0b'] },
+    { from: 'invoicing', to: 'connect', gradient: ['#f59e0b', '#4f46e5'] },
+    { from: 'connect', to: 'terminal', gradient: ['#4f46e5', '#10b981'] },
+    { from: 'terminal', to: 'payments', gradient: ['#10b981', '#7c3aed'] },
+    { from: 'payments', to: 'capital', gradient: ['#7c3aed', '#22c55e'] },
+    { from: 'capital', to: 'issuing', gradient: ['#22c55e', '#8b5cf6'] },
+    { from: 'issuing', to: 'radar', gradient: ['#8b5cf6', '#ef4444'] },
+    { from: 'radar', to: 'tax', gradient: ['#ef4444', '#7c3aed'] },
+    { from: 'tax', to: 'treasury', gradient: ['#7c3aed', '#06b6d4'] }
 ];
 
 // --- ARCHITECTURALLY CORRECT SUB-COMPONENTS ---
@@ -69,67 +67,148 @@ const DesktopAnimation = () => {
     const boxRefs = useRef({});
     const [paths, setPaths] = useState([]);
     const [svgSize, setSvgSize] = useState({ width: 0, height: 0 });
-    
+
     useLayoutEffect(() => {
         if (!containerRef.current) return;
         const computePaths = () => {
             const containerRect = containerRef.current.getBoundingClientRect();
             setSvgSize({ width: containerRect.width, height: containerRect.height });
-            const newPaths = animationPairsData.map(pair => {
+            const boxSize = 70;
+            const pathOffset = 80; // Increased for better clearance
+
+            const newPaths = animationPairsData.map((pair, index) => {
                 const fromEl = boxRefs.current[pair.from]?.querySelector('.product-box');
                 const toEl = boxRefs.current[pair.to]?.querySelector('.product-box');
                 if (!fromEl || !toEl) return null;
+
                 const fromRect = fromEl.getBoundingClientRect();
                 const toRect = toEl.getBoundingClientRect();
-                const startPoint = { x: fromRect.left - containerRect.left + fromRect.width / 2, y: fromRect.top - containerRect.top + fromRect.height / 2 };
-                const endPoint = { x: toRect.left - containerRect.left + toRect.width / 2, y: toRect.top - containerRect.top + toRect.height / 2 };
-                const controlPointOffset = pair.curve !== false ? (endPoint.x - startPoint.x) / 2 : 0;
-                const d = pair.curve !== false
-                    ? `M ${startPoint.x},${startPoint.y} C ${startPoint.x + controlPointOffset},${startPoint.y} ${endPoint.x - controlPointOffset},${endPoint.y} ${endPoint.x},${endPoint.y}`
-                    : `M ${startPoint.x},${startPoint.y} L ${endPoint.x},${endPoint.y}`;
+
+                const fromPos = {
+                    midX: fromRect.left - containerRect.left + boxSize / 2, // Middle of box horizontally
+                    top: fromRect.top - containerRect.top // Exact top outer edge
+                };
+                const toPos = {
+                    midX: toRect.left - containerRect.left + boxSize / 2, // Middle of box horizontally
+                    top: toRect.top - containerRect.top // Exact top outer edge
+                };
+
+                let d = `M ${fromPos.midX} ${fromPos.top} V ${toPos.top}`; // Direct vertical path as base
+
+                // Define detours through white space to avoid boxes
+                const midX = (fromPos.midX + toPos.midX) / 2;
+                const midY = Math.min(fromPos.top, toPos.top) - pathOffset; // Ensure path stays above all boxes
+                switch (`${pair.from}-${pair.to}`) {
+                    case 'billing-invoicing':
+                        d = `M ${fromPos.midX} ${fromPos.top} V ${midY} H ${midX} V ${toPos.top}`;
+                        break;
+                    case 'invoicing-connect':
+                        d = `M ${fromPos.midX} ${fromPos.top} V ${midY} H ${midX} V ${toPos.top}`;
+                        break;
+                    case 'connect-terminal':
+                        d = `M ${fromPos.midX} ${fromPos.top} V ${midY} H ${midX} V ${toPos.top}`;
+                        break;
+                    case 'terminal-payments':
+                        d = `M ${fromPos.midX} ${fromPos.top} V ${midY} H ${midX} V ${toPos.top}`;
+                        break;
+                    case 'payments-capital':
+                        d = `M ${fromPos.midX} ${fromPos.top} V ${midY} H ${midX} V ${toPos.top}`;
+                        break;
+                    case 'capital-issuing':
+                        d = `M ${fromPos.midX} ${fromPos.top} V ${midY} H ${midX} V ${toPos.top}`;
+                        break;
+                    case 'issuing-radar':
+                        d = `M ${fromPos.midX} ${fromPos.top} V ${midY} H ${midX} V ${toPos.top}`;
+                        break;
+                    case 'radar-tax':
+                        d = `M ${fromPos.midX} ${fromPos.top} V ${midY} H ${midX} V ${toPos.top}`;
+                        break;
+                    case 'tax-treasury':
+                        d = `M ${fromPos.midX} ${fromPos.top} V ${midY} H ${midX} V ${toPos.top}`;
+                        break;
+                }
+
                 return { id: `${pair.from}-${pair.to}`, d, gradient: pair.gradient };
             }).filter(Boolean);
+
             setPaths(newPaths);
         };
-        const timeoutId = setTimeout(computePaths, 50);
-        const ro = new ResizeObserver(computePaths); ro.observe(containerRef.current);
-        return () => { clearTimeout(timeoutId); ro.disconnect(); };
+        computePaths();
+        const ro = new ResizeObserver(computePaths);
+        ro.observe(containerRef.current);
+        return () => ro.disconnect();
     }, []);
 
     useEffect(() => {
         if (paths.length === 0 || svgSize.width === 0) return;
         let ctx = gsap.context(() => {
-            gsap.fromTo(".product-node", { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.8, stagger: 0.1, ease: 'power2.out', scrollTrigger: { trigger: containerRef.current, start: "top center", toggleActions: "play none none none", once: true } });
-            
-            const drawDuration = 1.5;
-            const holdDuration = 0.5;
-            const fadeDuration = 0.2;
-            const loopTimeline = gsap.timeline({ repeat: -1, repeatDelay: 1 });
-            let currentIndex = 0;
+            // Smooth node entrance
+            gsap.fromTo(".product-node", { autoAlpha: 0, y: 20, scale: 0.9 }, {
+                autoAlpha: 1, y: 0, scale: 1, duration: 0.9, stagger: 0.12, ease: 'elastic.out(1, 0.3)',
+                scrollTrigger: {
+                    trigger: containerRef.current,
+                    start: "top 50%",
+                    toggleActions: "play none none none",
+                    once: true
+                }
+            });
 
-            function animatePath(index) {
-                if (index >= paths.length) return;
-                const pathInfo = paths[index];
-                const pair = animationPairsData[index];
+            // Initialize paths with clean start
+            paths.forEach(p => {
+                const pathDash = document.getElementById(`path-dash-${p.id}`);
+                if (pathDash) {
+                    const pathLength = pathDash.getTotalLength();
+                    gsap.set(pathDash, { strokeDasharray: pathLength, strokeDashoffset: pathLength, autoAlpha: 0 });
+                }
+            });
+
+            // Polished sequential animation
+            const masterTimeline = gsap.timeline({ repeat: -1, repeatDelay: 1.8 });
+            animationPairsData.forEach((pair, index) => {
+                const pathInfo = paths.find(p => p.id === `${pair.from}-${pair.to}`);
+                if (!pathInfo) return;
+                const pathDash = document.getElementById(`path-dash-${pathInfo.id}`);
                 const fromNode = boxRefs.current[pair.from];
                 const toNode = boxRefs.current[pair.to];
-                const pathDash = document.getElementById(`path-dash-${pathInfo.id}`);
                 if (!pathDash || !fromNode || !toNode) return;
 
                 const pathLength = pathDash.getTotalLength();
-                gsap.set(pathDash, { strokeDasharray: pathLength, strokeDashoffset: pathLength, autoAlpha: 0 });
+                const totalDuration = 2.8;
+                const startTime = index * (totalDuration + 0.8);
 
-                loopTimeline
-                    .call(() => fromNode.classList.add('is-glowing'))
-                    .fromTo(pathDash, { autoAlpha: 1, strokeDashoffset: pathLength }, { strokeDashoffset: 0, duration: drawDuration, ease: 'none' })
-                    .call(() => toNode.classList.add('is-glowing'))
-                    .to(pathDash, { autoAlpha: 0, duration: fadeDuration }, `+=${holdDuration}`)
-                    .call(() => { fromNode.classList.remove('is-glowing'); toNode.classList.remove('is-glowing'); })
-                    .set(pathDash, { strokeDashoffset: pathLength })
-                    .call(() => animatePath(index + 1), [], "+=0");
-            }
+                masterTimeline
+                    .call(() => {
+                        fromNode.classList.add('is-glowing');
+                    }, [], startTime)
+                    .fromTo(pathDash, { strokeDashoffset: pathLength }, {
+                        strokeDashoffset: 0,
+                        duration: 2,
+                        ease: "power3.inOut",
+                        onUpdate: () => {
+                            const progress = 1 - (pathDash.getAttribute('stroke-dashoffset') / pathLength);
+                            if (progress < 0.05) {
+                                toNode.classList.remove('is-glowing');
+                            }
+                            if (progress > 0.95) {
+                                fromNode.classList.remove('is-glowing');
+                                toNode.classList.add('is-glowing');
+                            }
+                        },
+                        onStart: () => gsap.to(pathDash, { autoAlpha: 1, duration: 0.4 })
+                    }, startTime)
+                    .to(pathDash, { autoAlpha: 0, duration: 0.2 }, startTime + 2 + 0.6)
+                    .call(() => {
+                        fromNode.classList.remove('is-glowing');
+                        toNode.classList.remove('is-glowing');
+                    }, [], startTime + totalDuration)
+                    .set(pathDash, { strokeDashoffset: pathLength }, startTime + totalDuration);
+            });
 
-            animatePath(0);
+            ScrollTrigger.create({
+                trigger: containerRef.current,
+                start: "top 50%",
+                onEnter: () => masterTimeline.play(0)
+            });
         }, containerRef);
         return () => ctx.revert();
     }, [paths, svgSize]);
@@ -137,11 +216,30 @@ const DesktopAnimation = () => {
     return (
         <div ref={containerRef} className="animation-stage">
             <svg className="svg-path-overlay" viewBox={`0 0 ${svgSize.width} ${svgSize.height}`}>
-                <defs>{paths.map(p=>(<linearGradient key={`grad-${p.id}`} id={`grad-${p.id}`}><stop offset="0%" stopColor={p.gradient[0]} /><stop offset="100%" stopColor={p.gradient[1]} /></linearGradient>))}</defs>
-                {paths.map(p=>(<g key={p.id}><path id={`path-dash-${p.id}`} d={p.d} className="path-dash" stroke={`url(#grad-${p.id})`} /></g>))}
+                <defs>
+                    {paths.map(p => (
+                        <linearGradient key={`grad-${p.id}`} id={`grad-${p.id}`} x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" stopColor={p.gradient[0]} />
+                            <stop offset="100%" stopColor={p.gradient[1]} />
+                        </linearGradient>
+                    ))}
+                </defs>
+                {paths.map(p => (
+                    <g key={p.id}>
+                        <path
+                            id={`path-dash-${p.id}`}
+                            d={p.d}
+                            className="path-dash"
+                            stroke={`url(#grad-${p.id})`}
+                            fill="none"
+                        />
+                    </g>
+                ))}
             </svg>
             {allBoxesData.map(box => (
-                <ProductNode key={box.id} id={box.id} ref={el => boxRefs.current[box.id] = el} Icon={box.Icon} color={box.color}>{box.label}</ProductNode>
+                <ProductNode key={box.id} id={box.id} ref={el => boxRefs.current[box.id] = el} Icon={box.Icon} color={box.color}>
+                    {box.label}
+                </ProductNode>
             ))}
         </div>
     );
@@ -152,19 +250,25 @@ const MobileGrid = () => {
     const containerRef = useRef(null);
     useEffect(() => {
         gsap.from(".product-block-mobile", {
-            autoAlpha: 0, y: 30, stagger: 0.1, duration: 0.8, ease: 'power2.out',
+            autoAlpha: 0, y: 30, scale: 0.9, stagger: 0.1, duration: 0.8, ease: 'power2.out',
             scrollTrigger: { trigger: containerRef.current, start: "top 85%", toggleActions: "play none none none" }
         });
     }, []);
-    return (<div ref={containerRef} className="product-grid-mobile">{allBoxesData.map(box => (<ProductBlockMobile key={box.id} {...box} />))}</div>);
+    return (
+        <div ref={containerRef} className="product-grid-mobile">
+            {allBoxesData.map(box => (
+                <ProductBlockMobile key={box.id} {...box} />
+            ))}
+        </div>
+    );
 };
 
 // --- 3. THE PARENT COMPONENT THAT SWITCHES BETWEEN VIEWS ---
 const ProductSuiteScene = () => {
     const isDesktop = useMediaQuery('(min-width: 1024px)');
     const [isClient, setIsClient] = useState(false);
-    useEffect(() => { setIsClient(true) }, []);
-    
+    useEffect(() => { setIsClient(true); }, []);
+
     if (!isClient) return <div className="animation-placeholder" />;
     return isDesktop ? <DesktopAnimation /> : <MobileGrid />;
 };

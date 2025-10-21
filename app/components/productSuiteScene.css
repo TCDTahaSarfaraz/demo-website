@@ -1,73 +1,146 @@
-/* File: app/components/ProductSuiteScene.css - THE DEFINITIVE, FLAWLESS VERSION */
-
 /* --- SHARED & MOBILE-FIRST DEFAULTS --- */
 .animation-placeholder { width: 100%; aspect-ratio: 4 / 3; }
 .product-grid-mobile { width: 100%; padding: 0 1rem; display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; }
 @media (min-width: 640px) { .product-grid-mobile { grid-template-columns: repeat(3, 1fr); gap: 1.5rem; } }
-.product-block-mobile { background-color: white; border: 1px solid #f1f5f9; border-radius: 1rem; padding: 1.5rem 1rem; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 4px 10px -2px rgba(0,0,0,0.04); transition: transform 0.3s ease, box-shadow 0.3s ease; visibility: hidden; }
+
+.product-block-mobile {
+    background-color: white;
+    border: 1px solid #f1f5f9;
+    border-radius: 1rem;
+    padding: 1.5rem 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 10px -2px rgba(0,0,0,0.04);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    visibility: hidden;
+}
 .dark .product-block-mobile { background-color: #0f172a; border-color: #1e293b; }
 .product-block-mobile:hover { transform: translateY(-4px); box-shadow: 0 10px 20px -5px rgba(0,0,0,0.1); }
-.icon-container-mobile { width: 48px; height: 48px; border-radius: 0.75rem; display: flex; align-items: center; justify-content: center; margin-bottom: 1rem; background-color: color-mix(in srgb, var(--product-color) 15%, transparent); color: var(--product-color); }
+.icon-container-mobile {
+    width: 48px; height: 48px;
+    border-radius: 0.75rem;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 1rem;
+    background-color: color-mix(in srgb, var(--product-color) 15%, transparent);
+    color: var(--product-color);
+}
 .icon-container-mobile svg { width: 100%; height: 100%; }
 .product-label-mobile { font-size: 0.875rem; font-weight: 500; text-align: center; color: #334155; }
 .dark .product-label-mobile { color: #e2e8f0; }
 
-
-/* --- DESKTOP-ONLY STYLES --- */
-@screen lg {
-    .animation-stage { position: relative; width: 100%; max-width: 900px; height: 800px; user-select: none; }
-    
-    /* Pixel-perfect Stripe Layout */
-    #billing    { top: 5%; left: 22%; }
-    #invoicing  { top: 5%; left: 47%; }
-    #tax        { top: 5%; left: 72%; }
-    #connect    { top: 30%; left: 22%; }
-    #issuing    { top: 30%; left: 50%; }
-    #payments   { top: 30%; left: 72%; }
-    #capital    { top: 55%; left: 22%; }
-    #radar      { top: 55%; left: 72%; }
-    #terminal   { top: 55%; left: 47%; }
-    #treasury   { top: 80%; left: 35%; }
-
-    /* The new, correct product node structure */
-    .product-node {
-        position: absolute; display: flex; flex-direction: column; align-items: center;
-        visibility: visible;
+/* --- DESKTOP-ONLY STYLES (LG Breakpoint) --- */
+@media (min-width: 1024px) {
+    .animation-stage {
+        position: relative;
+        width: 100%;
+        max-width: 900px;
+        height: 800px;
+        margin-inline: auto;
+        user-select: none;
     }
+
+    /* Precise positions for each product node's CENTER */
+    #billing    { top: 10%; left: 15%; }
+    #invoicing  { top: 10%; left: 40%; }
+    #tax        { top: 10%; left: 65%; }
+
+    #connect    { top: 30%; left: 15%; }
+    #issuing    { top: 30%; left: 40%; }
+    #payments   { top: 30%; left: 65%; }
+
+    #capital    { top: 50%; left: 15%; }
+    #terminal   { top: 50%; left: 40%; }
+    #radar      { top: 50%; left: 65%; }
+
+    #treasury   { top: 70%; left: 40%; }
+
+    .product-node {
+        position: absolute;
+        transform: translate(-50%, -50%);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 70px;
+        visibility: hidden;
+    }
+
     .product-box {
-        width: 70px; height: 70px; border-radius: 1rem;
-        display: flex; align-items: center; justify-content: center;
-        background-color: white; border: 1.5px solid #eef2ff;
+        width: 70px;
+        height: 70px;
+        border-radius: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: white;
+        border: 1.5px solid #eef2ff;
         box-shadow: 0 4px 12px -4px rgba(0,0,0,0.05);
         color: #cbd5e1;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        z-index: 10;
+        position: relative;
     }
-    .dark .product-box { background-color: #020617; border-color: #1e293b; color: #475569; }
-    
-    .product-label { 
-        margin-top: 0.5rem; font-size: 0.7rem; font-weight: 500;
-        color: #64748b; white-space: nowrap; text-align: center;
+    .dark .product-box {
+        background-color: #020617;
+        border-color: #1e293b;
+        color: #475569;
+    }
+
+    .product-label {
+        margin-top: 0.75rem;
+        font-size: 0.75rem;
+        font-weight: 500;
+        color: #64748b;
+        white-space: nowrap;
+        text-align: center;
     }
     .dark .product-label { color: #94a3b8; }
-    
+
     .icon-container { width: 24px; height: 24px; }
-    .icon-container svg { width: 100%; height: 100%; }
-    /* Universal rule for clean icons */
     .icon-container svg * {
-        fill: none; stroke: currentColor; stroke-linejoin: round; stroke-linecap: round; stroke-width: 1.5;
+        fill: none;
+        stroke: currentColor;
+        stroke-linejoin: round;
+        stroke-linecap: round;
+        stroke-width: 1.5;
     }
-    /* Override for specific icons that use fill instead of stroke */
     #issuing .icon-container svg circle, #tax .icon-container svg path {
         stroke: none;
         fill: currentColor;
     }
-    
+
     .product-node.is-glowing .product-box {
         border-color: var(--product-color);
-        box-shadow: 0 0 0 3px color-mix(in srgb, var(--product-color) 20%, transparent), 0 10px 20px -8px rgba(37,51,84,.2);
+        box-shadow:
+            0 0 0 3px color-mix(in srgb, var(--product-color) 15%, transparent),
+            0 10px 20px -5px color-mix(in srgb, var(--product-color) 10%, transparent);
         color: var(--product-color);
+        transform: scale(1.05);
     }
-    
-    /* Path Styling */
-    .svg-path-overlay { position: absolute; inset: 0; pointer-events: none; overflow: visible; }
-    .path-dash { stroke-width: 2.5px; fill: none; }
+    .product-node.is-glowing .product-label {
+        color: #1e293b;
+    }
+    .dark .product-node.is-glowing .product-label {
+        color: #f1f5f9;
+    }
+
+    .svg-path-overlay {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        overflow: visible;
+        z-index: 5;
+    }
+
+    .path-dash {
+        stroke-width: 2.5px;
+        fill: none;
+        stroke-linecap: butt; /* Remove dots at endpoints */
+        stroke-linejoin: round;
+        opacity: 0;
+        filter: drop-shadow(0 1px 4px rgba(0,0,0,0.1));
+        transform: translateY(-1.5px); /* Align with outer border */
+        transition: opacity 0.3s ease;
+    }
 }
