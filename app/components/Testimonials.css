@@ -1,0 +1,88 @@
+/* --- Positioning Container --- */
+.testimonial-container-desktop {
+  position: relative;
+  width: 100%;
+  max-width: 1200px;
+  height: 800px;
+}
+
+/* --- Base Testimonial Card Styling --- */
+.testimonial-card {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 1.25rem;
+  border-radius: 1.5rem;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  width: 250px;
+  background-color: #fff;
+  color: #333;
+}
+
+@media (max-width: 1023px) {
+  .testimonial-card {
+    margin: 1rem 0;
+    width: 100%;
+    max-width: 350px;
+  }
+}
+
+.dark .testimonial-card {
+  background-color: #1a202c;
+  color: #e2e8f0;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.testimonial-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3), 0 0 20px rgba(81, 203, 238, 0.4); /* Enhanced glow effect */
+}
+
+/* --- Spacing between cards --- */
+.testimonial-card-spacing {
+  margin: 3rem; /* Increased spacing for better gap */
+}
+
+@media (max-width: 1023px) {
+  .testimonial-card-spacing {
+    margin: 1.5rem;
+  }
+}
+
+/* --- Avatar & Text Styling --- */
+.avatar-container {
+  width: 50px;
+  height: 50px;
+  border-radius: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.avatar-container img {
+  width: 100%;
+  height: 100%;
+  border-radius: 0.875rem;
+  object-fit: cover;
+}
+.testimonial-text {
+  font-size: 1.1rem;
+  line-height: 1.7;
+}
+.dark .testimonial-text {
+  color: #d1d5db;
+}
+.testimonial-author {
+  font-weight: 600;
+  color: #4b5563;
+}
+.dark .testimonial-author {
+  color: #9ca3af;
+}
+
+/* --- Star Background Animation --- */
+@keyframes anim-star {
+  from { transform: translateY(0px) scale(1); }
+  to { transform: translateY(-200px) scale(1.5); opacity: 0; }
+}

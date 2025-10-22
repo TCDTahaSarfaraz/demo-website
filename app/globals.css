@@ -81,14 +81,34 @@
     transform: scale(1);
   }
 }
-@keyframes anim-star {
-  from {
-    transform: translateY(0px);
-  }
-  to {
-    transform: translateY(-2000px);
-  }
-}
 .animate-glow {
   animation: glow 4s ease-in-out infinite alternate;
+}
+@keyframes scroll-y {
+  from { transform: translateY(0); }
+  to { transform: translateY(-50%); }
+}
+
+@keyframes scroll-y-reverse {
+  from { transform: translateY(-50%); }
+  to { transform: translateY(0); }
+}
+
+@keyframes anim-star {
+  from {
+    transform: translateY(0px) scale(1);
+    opacity: 1;
+  }
+  to {
+    transform: translateY(-200px) scale(1.5);
+    opacity: 0;
+  }
+}
+
+.animate-scroll-y {
+  animation: scroll-y linear infinite;
+}
+
+.animate-scroll-y-reverse {
+  animation: scroll-y-reverse linear infinite;
 }
