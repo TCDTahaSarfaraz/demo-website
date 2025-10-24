@@ -1,131 +1,126 @@
+// File: app/components/ContactSection.js (Modernized & Professional)
 'use client';
 
-import React, { useEffect, useRef } from 'react';
-import { gsap } from 'gsap';
+import { useRef } from 'react';
+import { motion, useInView } from 'framer-motion';
+import { BackgroundGradient } from '../../components/ui/shadcn-io/background-gradient'; // <-- ADJUST PATH IF NEEDED
+import { Mail, Phone, MapPin } from 'lucide-react';
 
 const ContactSection = () => {
-  const sectionRef = useRef(null);
-  const linksRef = useRef(null);
-  const formMapRef = useRef(null);
+    const sectionRef = useRef(null);
+    const isInView = useInView(sectionRef, { once: true, amount: 0.2 });
 
-  useEffect(() => {
-    const tl = gsap.timeline({
-      scrollTrigger: {
-        trigger: sectionRef.current,
-        start: 'top 80%',
-        end: 'top 20%',
-        toggleActions: 'play none none reverse',
-      },
-      defaults: { ease: 'power3.out' },
-    });
+    const containerVariants = {
+        hidden: { opacity: 0, y: 50 },
+        visible: {
+            opacity: 1,
+            y: 0,
+            transition: {
+                duration: 0.8,
+                ease: [0.6, 0.05, 0.01, 0.9],
+                staggerChildren: 0.1,
+            },
+        },
+    };
 
-    gsap.fromTo(
-      linksRef.current,
-      { opacity: 0, y: 50, scale: 0.9, boxShadow: '0 0 0 rgba(0,0,0,0)' },
-      { 
-        opacity: 1, 
-        y: 0, 
-        scale: 1, 
-        boxShadow: '0 10px 20px rgba(0,0,0,0.2)', 
-        duration: 1.5,
-        filter: 'drop-shadow(0 0 10px rgba(147, 51, 234, 0.3))'
-      }
+    const itemVariants = {
+        hidden: { opacity: 0, y: 20 },
+        visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
+    };
+
+    return (
+        <section
+            id="contact"
+            ref={sectionRef}
+            className="relative w-full py-24 sm:py-32 overflow-hidden bg-slate-950"
+        >
+            {/* Ambient Background */}
+            <motion.div
+                className="absolute inset-0 z-0"
+                style={{
+                    backgroundImage: 'linear-gradient(to right, #1e3a8a, #4c1d95, #86198f)',
+                    backgroundSize: '200% 200%',
+                }}
+                animate={{ backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'] }}
+                transition={{ duration: 25, repeat: Infinity, ease: 'linear' }}
+            />
+            <div className="absolute inset-0 z-[1] bg-black/50 backdrop-blur-sm" />
+
+            <div className="relative z-10 container mx-auto max-w-7xl px-6 lg:px-8">
+                {/* Main Content inside the Gradient Card */}
+                <motion.div
+                    variants={containerVariants}
+                    initial="hidden"
+                    animate={isInView ? 'visible' : 'hidden'}
+                >
+                    <BackgroundGradient
+                        className="rounded-[22px] w-full p-8 md:p-10 bg-slate-900/80 backdrop-blur-md"
+                        containerClassName="w-full"
+                    >
+                        <div className="grid md:grid-cols-2 gap-10 md:gap-16">
+                            {/* Left Side: Form */}
+                            <motion.div variants={itemVariants} className="flex flex-col">
+                                <h2 className="text-3xl font-bold text-white mb-2">Get in Touch</h2>
+                                <p className="text-gray-300 mb-8">
+                                    Have a project in mind or just want to say hi? Fill out the form, and we'll get back to you.
+                                </p>
+                                <form className="space-y-5 flex-grow flex flex-col">
+                                    <input type="text" placeholder="Full Name" required className="w-full p-3 bg-slate-800/50 border border-slate-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all" />
+                                    <input type="email" placeholder="Email Address" required className="w-full p-3 bg-slate-800/50 border border-slate-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all" />
+                                    <textarea placeholder="Your Message" required className="w-full p-3 bg-slate-800/50 border border-slate-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all flex-grow" rows="5"></textarea>
+                                    <button type="submit" className="w-full bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-semibold p-3 rounded-lg hover:opacity-90 shadow-lg shadow-indigo-500/30 transition-opacity duration-300">
+                                        Send Message
+                                    </button>
+                                </form>
+                            </motion.div>
+
+                            {/* Right Side: Details & Map */}
+                            <motion.div variants={itemVariants} className="space-y-10">
+                                <div>
+                                    <h3 className="text-2xl font-bold text-white mb-6">Contact Details</h3>
+                                    <div className="space-y-5 text-gray-300">
+                                        <div className="flex items-start gap-4">
+                                            <Mail className="w-6 h-6 text-indigo-300 mt-1 flex-shrink-0" />
+                                            <div>
+                                                <p className="font-semibold text-white">Email</p>
+                                                <a href="mailto:hi@untitledui.com" className="hover:text-indigo-300 transition-colors">hi@untitledui.com</a>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-start gap-4">
+                                            <Phone className="w-6 h-6 text-indigo-300 mt-1 flex-shrink-0" />
+                                            <div>
+                                                <p className="font-semibold text-white">Phone</p>
+                                                <p>+1 (555) 000-0000</p>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-start gap-4">
+                                            <MapPin className="w-6 h-6 text-indigo-300 mt-1 flex-shrink-0" />
+                                            <div>
+                                                <p className="font-semibold text-white">Office Location</p>
+                                                <p>100 Smith Street, Collingwood VIC 3066 AU</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="relative w-full h-80 rounded-2xl overflow-hidden border border-slate-700">
+                                     <iframe
+                                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3620.401590081113!2d67.00464987401142!3d24.850130145673422!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3eb33e06f2a60f3b%3A0xd6863f65ab088107!2sTechnoCom%20Developments!5e0!3m2!1sen!2s!4v1761140136766!5m2!1sen!2s"
+                                        width="100%"
+                                        height="100%"
+                                        style={{ border: 0 }}
+                                        allowFullScreen=""
+                                        loading="lazy"
+                                        referrerPolicy="no-referrer-when-downgrade"
+                                        className="grayscale"
+                                    ></iframe>
+                                </div>
+                            </motion.div>
+                        </div>
+                    </BackgroundGradient>
+                </motion.div>
+            </div>
+        </section>
     );
-
-    tl.fromTo(
-      formMapRef.current,
-      { opacity: 0, y: 50, scale: 0.9, boxShadow: '0 0 0 rgba(0,0,0,0)' },
-      { 
-        opacity: 1, 
-        y: 0, 
-        scale: 1, 
-        boxShadow: '0 10px 20px rgba(0,0,0,0.2)', 
-        duration: 1.5,
-        filter: 'drop-shadow(0 0 10px rgba(147, 51, 234, 0.3))'
-      }
-    );
-
-    return () => tl.kill();
-  }, []);
-
-  return (
-    <div className="container mx-auto p-6" ref={sectionRef}>
-      {/* Simple Links 01 - Always Visible */}
-      <div ref={linksRef} className="bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-200 text-center rounded-lg shadow-md mb-8 p-6">
-        <h1 className="text-4xl font-bold mb-4">We'd love to hear from you</h1>
-        <p className="text-lg mb-6">Our friendly team is always here to chat.</p>
-        <div className="flex justify-around max-w-2xl mx-auto">
-          <div className="text-center">
-            <div className="flex justify-center mb-4">
-              <span className="inline-block bg-purple-100 dark:bg-purple-900 rounded-full p-4 shadow-md">
-                <svg className="w-6 h-6 text-purple-600 dark:text-purple-400" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V6h16v12zM4 0h16v2H4V0zm0 22h16v2H4v-2zm8-10c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-2.2 0-4 1.8-4 4v2h8v-2c0-2.2-1.8-4-4-4z"/>
-                </svg>
-              </span>
-            </div>
-            <p className="font-medium mb-2">Email</p>
-            <p className="text-purple-600 dark:text-purple-400">hi@untitledui.com</p>
-          </div>
-          <div className="text-center">
-            <div className="flex justify-center mb-4">
-              <span className="inline-block bg-purple-100 dark:bg-purple-900 rounded-full p-4 shadow-md">
-                <svg className="w-6 h-6 text-purple-600 dark:text-purple-400" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1.45 1 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/>
-                </svg>
-              </span>
-            </div>
-            <p className="font-medium mb-2">Office</p>
-            <p className="text-purple-600 dark:text-purple-400">100 Smith Street<br />Collingwood VIC 3066 AU</p>
-          </div>
-          <div className="text-center">
-            <div className="flex justify-center mb-4">
-              <span className="inline-block bg-purple-100 dark:bg-purple-900 rounded-full p-4 shadow-md">
-                <svg className="w-6 h-6 text-purple-600 dark:text-purple-400" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1.45 1 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/>
-                </svg>
-              </span>
-            </div>
-            <p className="font-medium mb-2">Phone</p>
-            <p className="text-purple-600 dark:text-purple-400">Mon-Fri from 8am to 5pm.<br />+1 (555) 000-0000</p>
-          </div>
-        </div>
-      </div>
-
-      {/* Form and Map */}
-      <div ref={formMapRef} className="flex flex-col md:flex-row gap-6 bg-white dark:bg-gray-900 rounded-lg shadow-md p-6">
-        <div className="w-full md:w-1/2">
-          <h2 className="text-3xl font-bold mb-6 text-gray-800 dark:text-gray-200">We'd love to hear from you</h2>
-          <form className="space-y-4">
-            <input type="text" placeholder="First name" className="w-full p-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500" />
-            <input type="text" placeholder="Last name" className="w-full p-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500" />
-            <input type="email" placeholder="Email" className="w-full p-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500" />
-            <input type="tel" placeholder="Phone" className="w-full p-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500" />
-            <textarea placeholder="Message" className="w-full p-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500" rows="4"></textarea>
-            <button type="submit" className="w-full bg-purple-600 text-white p-3 rounded-lg hover:bg-purple-700 shadow-md transition duration-300">Send Message</button>
-          </form>
-        </div>
-        <div className="w-full md:w-1/2">
-          <h2 className="text-3xl font-bold mb-6 text-gray-800 dark:text-gray-200">Our Location</h2>
-          <div className="relative">
-            <iframe
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3620.401590081113!2d67.00464987401142!3d24.850130145673422!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3eb33e06f2a60f3b%3A0xd6863f65ab088107!2sTechnoCom%20Developments!5e0!3m2!1sen!2s!4v1761140136766!5m2!1sen!2s"
-              width="100%"
-              height="400"
-              style={{ border: 0 }}
-              allowFullScreen=""
-              loading="lazy"
-              referrerPolicy="no-referrer-when-downgrade"
-              className="rounded-lg"
-            ></iframe>
-            <div className="absolute top-4 left-4 bg-white dark:bg-gray-800 p-2 rounded-lg shadow-md">
-              <p className="text-sm text-gray-800 dark:text-gray-200">TechnoCom Developments</p>
-              <p className="text-sm text-gray-800 dark:text-gray-200">Suite #408, Uni Center I.I Chundrigar Rd, Karachi</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
 };
 
 export default ContactSection;

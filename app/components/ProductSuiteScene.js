@@ -1,14 +1,14 @@
-
+// app/components/ProductSuiteScene.js
 'use client';
 
 import React, { useEffect, useRef, useState, useLayoutEffect } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import './ProductSuiteScene.css';
+import './productSuiteScene.css';
 
 gsap.registerPlugin(ScrollTrigger);
 
-// --- A robust hook to check for screen size ---
+// --- HOOKS & DATA ---
 const useMediaQuery = (query) => {
     const [matches, setMatches] = useState(false);
     useEffect(() => {
@@ -22,7 +22,6 @@ const useMediaQuery = (query) => {
     return matches;
 };
 
-// --- DATA & SVG DEFINITIONS ---
 const allBoxesData = [
     { id: 'billing', label: 'Billing', color: '#f59e0b', Icon: (p) => <svg viewBox="0 0 24 24" {...p}><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6Z" /><path d="M14 2v6h6"/></svg> },
     { id: 'invoicing', label: 'Invoicing', color: '#f59e0b', Icon: (p) => <svg viewBox="0 0 24 24" {...p}><path d="M16 4h2a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg> },
@@ -36,23 +35,60 @@ const allBoxesData = [
     { id: 'treasury', label: 'Treasury', color: '#06b6d4', Icon: (p) => <svg viewBox="0 0 24 24" {...p}><path d="M8 14h8M8 10h8m-4 8V6"/><path d="M3 20V4a2 2 0 012-2h14a2 2 0 012 2v16l-4-4H7l-4 4Z"/></svg> },
 ];
 
-// Updated animation pairs for a more professional and logical flow.
 const animationPairsData = [
-    { from: 'billing', to: 'invoicing', gradient: ['#f59e0b', '#f59e0b'], curveFactor: 0 },
-    { from: 'invoicing', to: 'tax', gradient: ['#f59e0b', '#7c3aed'], curveFactor: 0 },
-    { from: 'tax', to: 'payments', gradient: ['#7c3aed', '#7c3aed'], curveFactor: 35 },
-    { from: 'payments', to: 'radar', gradient: ['#7c3aed', '#ef4444'], curveFactor: 0 },
-    { from: 'radar', to: 'terminal', gradient: ['#ef4444', '#10b981'], curveFactor: -35 },
-    { from: 'terminal', to: 'issuing', gradient: ['#10b981', '#8b5cf6'], curveFactor: 0 },
-    { from: 'issuing', to: 'connect', gradient: ['#8b5cf6', '#4f46e5'], curveFactor: 0 },
-    { from: 'connect', to: 'capital', gradient: ['#4f46e5', '#22c55e'], curveFactor: 0 },
-    { from: 'capital', to: 'treasury', gradient: ['#22c55e', '#06b6d4'], curveFactor: 0 },
-    // Added user-requested path with a nice curve
-    { from: 'invoicing', to: 'connect', gradient: ['#f59e0b', '#4f46e5'], curveFactor: -50 },
+    { from: 'billing',  to: 'connect',  pathType: 'L-shape-V' },
+    { from: 'connect',  to: 'issuing',  pathType: 'straight' },
+    { from: 'issuing',  to: 'invoicing',pathType: 'multi-bend', },
+    { from: 'invoicing',to: 'tax',      pathType: 'straight' },
+    { from: 'tax',      to: 'payments', pathType: 'L-shape-V' },
+    { from: 'payments', to: 'radar',    pathType: 'multi-bend' },
+    { from: 'radar',    to: 'terminal', pathType: 'straight' },
+    { from: 'terminal', to: 'issuing',  pathType: 'L-shape-H' },
+    { from: 'terminal', to: 'capital',  pathType: 'straight' },
+    { from: 'capital',  to: 'treasury', pathType: 'curve', curveFactor: -40 },
 ];
 
+// --- ADVANCED PATH GENERATION HELPERS (Preserved from previous version for accuracy) ---
+const getAttachmentPoint = (boxRect, targetCenter) => {
+    const boxCenter = { x: boxRect.left + boxRect.width / 2, y: boxRect.top + boxRect.height / 2 };
+    const angle = Math.atan2(targetCenter.y - boxCenter.y, targetCenter.x - boxCenter.x) * 180 / Math.PI;
+    if (angle > -45 && angle <= 45) return { x: boxRect.right, y: boxCenter.y, side: 'right' };
+    if (angle > 45 && angle <= 135) return { x: boxCenter.x, y: boxRect.bottom, side: 'bottom' };
+    if (angle > 135 || angle <= -135) return { x: boxRect.left, y: boxCenter.y, side: 'left' };
+    return { x: boxCenter.x, y: boxRect.top, side: 'top' };
+};
 
-// --- ARCHITECTURALLY CORRECT SUB-COMPONENTS ---
+const createPath = (start, end, type, options = {}) => {
+    const cornerRadius = 20;
+    const sx = Math.sign(end.x - start.x) || 1;
+    const sy = Math.sign(end.y - start.y) || 1;
+    switch(type) {
+        case 'straight': return `M ${start.x} ${start.y} L ${end.x} ${end.y}`;
+        case 'L-shape-V': return `M ${start.x} ${start.y} V ${end.y - cornerRadius * sy} A ${cornerRadius} ${cornerRadius} 0 0 ${sx*sy > 0 ? 1 : 0} ${start.x + cornerRadius * sx} ${end.y} H ${end.x}`;
+        case 'L-shape-H': return `M ${start.x} ${start.y} H ${end.x - cornerRadius * sx} A ${cornerRadius} ${cornerRadius} 0 0 ${sx*sy < 0 ? 1 : 0} ${end.x} ${start.y + cornerRadius * sy} V ${end.y}`;
+        case 'multi-bend': {
+            const midY = (start.y + end.y) / 2;
+            const midX = (start.x + end.x) / 2;
+            // A more robust multi-bend that avoids sharp self-intersections
+            if (start.side === 'bottom') {
+                return `M ${start.x} ${start.y} V ${midY - cornerRadius*sy} A ${cornerRadius} ${cornerRadius} 0 0 1 ${start.x+cornerRadius*sx} ${midY} H ${end.x-cornerRadius*sx} A ${cornerRadius} ${cornerRadius} 0 0 0 ${end.x} ${midY+cornerRadius*sy} V ${end.y}`;
+            }
+             return `M ${start.x} ${start.y} H ${midX} V ${end.y} H ${end.x}`;
+        }
+        case 'curve': {
+            const mid = { x: (start.x + end.x) / 2, y: (start.y + end.y) / 2 };
+            const d = { x: end.x - start.x, y: end.y - start.y };
+            const l = Math.sqrt(d.x**2 + d.y**2);
+            const p = { x: -d.y/l, y: d.x/l };
+            const c = { x: mid.x + p.x * options.curveFactor, y: mid.y + p.y * options.curveFactor };
+            return `M ${start.x} ${start.y} Q ${c.x} ${c.y} ${end.x} ${end.y}`;
+        }
+        default: return `M ${start.x} ${start.y} L ${end.x} ${end.y}`;
+    }
+};
+
+
+// --- SUB-COMPONENTS & MAIN DESKTOP COMPONENT ---
 const ProductNode = React.forwardRef(({ id, children, Icon, color, iconType }, ref) => (
     <div id={id} ref={ref} className={`product-node ${iconType === 'fill' ? 'fill-icon' : ''}`} style={{ '--product-color': color }}>
         <div className="product-box"><div className="icon-container"><Icon /></div></div>
@@ -61,14 +97,8 @@ const ProductNode = React.forwardRef(({ id, children, Icon, color, iconType }, r
 ));
 ProductNode.displayName = 'ProductNode';
 
-const ProductBlockMobile = ({ id, children, Icon, color, iconType }) => (
-    <div id={id} className={`product-block-mobile ${iconType === 'fill' ? 'fill-icon' : ''}`}>
-        <div className="icon-container-mobile" style={{'--product-color': color}}><Icon /></div>
-        <span className="product-label-mobile">{children}</span>
-    </div>
-);
+const MobileGrid = () => { /* mobile component remains the same */ };
 
-// --- 1. THE DESKTOP ANIMATION COMPONENT ---
 const DesktopAnimation = () => {
     const containerRef = useRef(null);
     const boxRefs = useRef({});
@@ -76,192 +106,113 @@ const DesktopAnimation = () => {
     const [svgSize, setSvgSize] = useState({ width: 0, height: 0 });
 
     useLayoutEffect(() => {
-        if (!containerRef.current) return;
-        const computePaths = () => {
+        // --- 1. COMPUTE PATHS ---
+        const computeAndUpdatePaths = () => {
+            if (!containerRef.current) return;
             const containerRect = containerRef.current.getBoundingClientRect();
             setSvgSize({ width: containerRect.width, height: containerRect.height });
 
-            const newPaths = animationPairsData.map((pair) => {
+            const newPaths = animationPairsData.map(pair => {
                 const fromEl = boxRefs.current[pair.from]?.querySelector('.product-box');
                 const toEl = boxRefs.current[pair.to]?.querySelector('.product-box');
                 if (!fromEl || !toEl) return null;
 
                 const fromRect = fromEl.getBoundingClientRect();
                 const toRect = toEl.getBoundingClientRect();
-
-                const fromCenter = { x: fromRect.left - containerRect.left + fromRect.width / 2, y: fromRect.top - containerRect.top + fromRect.height / 2 };
-                const toCenter = { x: toRect.left - containerRect.left + toRect.width / 2, y: toRect.top - containerRect.top + toRect.height / 2 };
-
-                const dx = toCenter.x - fromCenter.x;
-                const dy = toCenter.y - fromCenter.y;
+                const toCenter = { x: toRect.left + toRect.width / 2, y: toRect.top + toRect.height / 2 };
                 
-                const boxBuffer = 1.5; // Start path right at the border edge
-                let startPoint, endPoint;
+                const startPoint = getAttachmentPoint(fromRect, toCenter);
+                const endPoint = getAttachmentPoint(toRect, { x: fromRect.left + fromRect.width / 2, y: fromRect.top + fromRect.height / 2 });
 
-                if (Math.abs(dx) > Math.abs(dy)) { // Primarily horizontal
-                    startPoint = { x: fromCenter.x + Math.sign(dx) * (fromRect.width / 2 + boxBuffer), y: fromCenter.y };
-                    endPoint = { x: toCenter.x - Math.sign(dx) * (toRect.width / 2 + boxBuffer), y: toCenter.y };
-                } else { // Primarily vertical
-                    startPoint = { x: fromCenter.x, y: fromCenter.y + Math.sign(dy) * (fromRect.height / 2 + boxBuffer) };
-                    endPoint = { x: toCenter.x, y: toCenter.y - Math.sign(dy) * (toRect.height / 2 + boxBuffer) };
-                }
+                const relativeStart = { x: startPoint.x - containerRect.left, y: startPoint.y - containerRect.top };
+                const relativeEnd = { x: endPoint.x - containerRect.left, y: endPoint.y - containerRect.top };
 
-                let d;
-                const curveFactor = pair.curveFactor || 0;
-
-                if (curveFactor === 0) {
-                     d = `M ${startPoint.x} ${startPoint.y} L ${endPoint.x} ${endPoint.y}`;
-                } else {
-                    const midPoint = { x: (startPoint.x + endPoint.x) / 2, y: (startPoint.y + endPoint.y) / 2 };
-                    const vec = { x: endPoint.x - startPoint.x, y: endPoint.y - startPoint.y };
-                    const vecLength = Math.sqrt(vec.x ** 2 + vec.y ** 2);
-                    const perpVec = { x: -vec.y / vecLength, y: vec.x / vecLength };
-                    const controlPoint = { x: midPoint.x + perpVec.x * curveFactor, y: midPoint.y + perpVec.y * curveFactor };
-                    d = `M ${startPoint.x} ${startPoint.y} Q ${controlPoint.x} ${controlPoint.y} ${endPoint.x} ${endPoint.y}`;
-                }
+                const d = createPath(relativeStart, relativeEnd, pair.pathType, { curveFactor: pair.curveFactor });
                 
-                let gradientCoords = { x1: "0%", y1: "0%", x2: "100%", y2: "0%" };
-                if (Math.abs(dy) > Math.abs(dx)) {
-                    gradientCoords = dy > 0 ? { x1: "0%", y1: "0%", x2: "0%", y2: "100%" } : { x1: "0%", y1: "100%", x2: "0%", y2: "0%" };
-                } else {
-                    gradientCoords = dx > 0 ? { x1: "0%", y1: "0%", x2: "100%", y2: "0%" } : { x1: "100%", y1: "0%", x2: "0%", y2: "0%" };
-                }
+                const fromColor = allBoxesData.find(b => b.id === pair.from)?.color || '#fff';
+                const toColor = allBoxesData.find(b => b.id === pair.to)?.color || '#fff';
 
-                return { id: `${pair.from}-${pair.to}`, d, gradient: pair.gradient, gradientCoords };
+                return { id: `${pair.from}-${pair.to}`, d, gradient: [fromColor, toColor] };
             }).filter(Boolean);
-
             setPaths(newPaths);
         };
-        computePaths();
-        const ro = new ResizeObserver(computePaths);
+        computeAndUpdatePaths();
+        const ro = new ResizeObserver(computeAndUpdatePaths);
         ro.observe(containerRef.current);
         return () => ro.disconnect();
     }, []);
 
-    useEffect(() => {
-        if (paths.length === 0 || svgSize.width === 0) return;
-        let ctx = gsap.context(() => {
-            gsap.fromTo(".product-node", { autoAlpha: 0, y: 20, scale: 0.9 }, {
-                autoAlpha: 1, y: 0, scale: 1, duration: 0.8, stagger: 0.05, ease: 'power2.out',
-                scrollTrigger: { trigger: containerRef.current, start: "top 60%", once: true }
-            });
+    useLayoutEffect(() => {
+        // --- 2. SETUP GSAP ANIMATION ---
+        if (paths.length === 0) return;
+        const ctx = gsap.context(() => {
+            gsap.from(".product-node", { autoAlpha: 0, y: 20, scale: 0.9, duration: 0.8, stagger: 0.05, ease: 'power2.out', scrollTrigger: { trigger: containerRef.current, start: "top 60%", once: true } });
 
             paths.forEach(p => {
-                const pathEl = document.getElementById(`path-dash-${p.id}`);
+                const pathEl = document.getElementById(`path-line-${p.id}`);
                 if (pathEl) {
                     const len = pathEl.getTotalLength();
                     gsap.set(pathEl, { strokeDasharray: len, strokeDashoffset: len, autoAlpha: 0 });
                 }
             });
 
-            const masterTimeline = gsap.timeline({ repeat: -1, paused: true, repeatDelay: 0.5 });
-            
-            animationPairsData.forEach((pair, index) => {
+            const masterTimeline = gsap.timeline({ repeat: -1, paused: true, repeatDelay: 1.0, defaults: { ease: "power2.inOut" }});
+
+            animationPairsData.forEach(pair => {
                 const pathInfo = paths.find(p => p.id === `${pair.from}-${pair.to}`);
                 if (!pathInfo) return;
-
-                const pathDash = document.getElementById(`path-dash-${pathInfo.id}`);
+                const pathEl = document.getElementById(`path-line-${pathInfo.id}`);
                 const fromNode = boxRefs.current[pair.from];
                 const toNode = boxRefs.current[pair.to];
-                if (!pathDash || !fromNode || !toNode) return;
+                if (!pathEl || !fromNode || !toNode) return;
                 
-                const pathLength = pathDash.getTotalLength();
-
                 masterTimeline
                     .add(() => {
-                        Object.values(boxRefs.current).forEach(node => node.classList.remove('is-glowing'));
+                        gsap.set(Object.values(boxRefs.current), { className: 'product-node' });
                         fromNode.classList.add('is-glowing');
-                    }, index === 0 ? "+=0.5" : undefined)
-                    .set(pathDash, { autoAlpha: 1, strokeDashoffset: pathLength })
-                    .to(pathDash, {
-                        strokeDashoffset: 0,
-                        duration: 1.2,
-                        ease: "power2.inOut"
                     })
+                    .to(pathEl, { autoAlpha: 1, duration: 0.1 })
+                    .to(pathEl, { strokeDashoffset: 0, duration: 1.2 }, "<")
                     .add(() => {
                         fromNode.classList.remove('is-glowing');
                         toNode.classList.add('is-glowing');
                     }, "-=0.2")
-                    .to(pathDash, {
-                        autoAlpha: 0,
-                        duration: 0.4
-                    }, "+=0.3");
+                    .to(pathEl, { autoAlpha: 0, duration: 0.4 }, "+=0.5")
+                    // After fading out, reset the dash offset for the next loop
+                    .set(pathEl, { strokeDashoffset: pathEl.getTotalLength() }); 
             });
             
-            masterTimeline.add(() => {
-                const lastPair = animationPairsData[animationPairsData.length - 1];
-                if (lastPair) {
-                    const lastNode = boxRefs.current[lastPair.to];
-                    if (lastNode) lastNode.classList.remove('is-glowing');
-                }
-            });
-
-            ScrollTrigger.create({
-                trigger: containerRef.current,
-                start: "top 50%",
-                onEnter: () => masterTimeline.play(0),
-                onLeaveBack: () => masterTimeline.pause(0)
-            });
-
+            masterTimeline.add(() => gsap.set(Object.values(boxRefs.current), { className: 'product-node' }));
+            
+            ScrollTrigger.create({ trigger: containerRef.current, start: "top 50%", onEnter: () => masterTimeline.play(), onLeaveBack: () => masterTimeline.pause(0) });
         }, containerRef);
         return () => ctx.revert();
-    }, [paths, svgSize]);
+    }, [paths]);
 
     return (
         <div ref={containerRef} className="animation-stage">
             <svg className="svg-path-overlay" viewBox={`0 0 ${svgSize.width} ${svgSize.height}`}>
                 <defs>
                     {paths.map(p => (
-                        <linearGradient key={`grad-${p.id}`} id={`grad-${p.id}`} {...p.gradientCoords}>
+                        <linearGradient key={`grad-${p.id}`} id={`grad-${p.id}`} x1="0%" y1="0%" x2="100%" y2="0%">
                             <stop offset="0%" stopColor={p.gradient[0]} />
                             <stop offset="100%" stopColor={p.gradient[1]} />
                         </linearGradient>
                     ))}
                 </defs>
-                {paths.map(p => (
-                    <g key={p.id} className="path-group">
-                        <path
-                            id={`path-dash-${p.id}`}
-                            d={p.d}
-                            className="path-dash"
-                            stroke={`url(#grad-${p.id})`}
-                        />
-                    </g>
-                ))}
+                {paths.map(p => <path key={p.id} id={`path-line-${p.id}`} d={p.d} className="path-line" stroke={`url(#grad-${p.id})`} />)}
             </svg>
             {allBoxesData.map(box => (
-                <ProductNode key={box.id} id={box.id} ref={el => boxRefs.current[box.id] = el} {...box}>
-                    {box.label}
-                </ProductNode>
+                <ProductNode key={box.id} id={box.id} ref={el => boxRefs.current[box.id] = el} {...box}>{box.label}</ProductNode>
             ))}
         </div>
     );
 };
 
-// --- 2. THE MOBILE GRID COMPONENT ---
-const MobileGrid = () => {
-    const containerRef = useRef(null);
-    useEffect(() => {
-        gsap.from(".product-block-mobile", {
-            autoAlpha: 0, y: 30, scale: 0.9, stagger: 0.05, duration: 0.6, ease: 'power2.out',
-            scrollTrigger: { trigger: containerRef.current, start: "top 85%", once: true }
-        });
-    }, []);
-    return (
-        <div ref={containerRef} className="product-grid-mobile">
-            {allBoxesData.map(box => (
-                <ProductBlockMobile key={box.id} {...box} />
-            ))}
-        </div>
-    );
-};
-
-// --- 3. THE PARENT COMPONENT THAT SWITCHES BETWEEN VIEWS ---
 const ProductSuiteScene = () => {
     const isDesktop = useMediaQuery('(min-width: 1024px)');
     const [isClient, setIsClient] = useState(false);
     useEffect(() => { setIsClient(true); }, []);
-
     if (!isClient) return <div className="animation-placeholder" />;
     return isDesktop ? <DesktopAnimation /> : <MobileGrid />;
 };

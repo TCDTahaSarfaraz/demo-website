@@ -1,66 +1,85 @@
-// File: app/components/Home.js - DEFINITIVE RESPONSIVE VERSION
-
+// app/page.js or app/components/Home.js
 'use client';
 
-import { useLayoutEffect, useRef } from 'react';
-import Image from 'next/image';
-import { gsap } from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { Suspense, lazy } from 'react';
+import { motion } from 'framer-motion';
+import { ArrowRight } from 'lucide-react';
 
-gsap.registerPlugin(ScrollTrigger);
+// Lazy load the animation component
+const HeroAnimation = lazy(() => import('./HeroAnimation'));
 
-const Home = () => {
-    const sectionRef = useRef(null);
-    const contentRef = useRef(null);
-    const globeContainerRef = useRef(null);
-    const heroContentRef = useRef(null);
-
-    useLayoutEffect(() => {
-        const mm = ScrollTrigger.matchMedia();
-
-        mm.add({ isDesktop: "(min-width: 768px)", isMobile: "(max-width: 767px)" }, (context) => {
-            const { isDesktop } = context.conditions;
-            const ctx = gsap.context(() => {
-                gsap.to(globeContainerRef.current, {
-                    scale: isDesktop ? 6 : 2.5,
-                    ease: "power1.out",
-                    scrollTrigger: { trigger: sectionRef.current, start: "top top", end: "bottom bottom", scrub: 1 }
-                });
-                gsap.to(heroContentRef.current, {
-                    opacity: 0,
-                    filter: isDesktop ? 'blur(8px)' : 'none',
-                    ease: "power1.out",
-                    scrollTrigger: { trigger: sectionRef.current, start: "top top", end: "center center", scrub: 1 }
-                });
-            }, sectionRef);
-            return () => ctx.revert();
-        });
-        return () => mm.revert();
-    }, []);
-
-    return (
-        <section id="home" ref={sectionRef} className="relative h-[200vh] bg-background overflow-hidden">
-            <div ref={contentRef} className="sticky top-0 h-screen w-full flex items-center justify-center text-center">
-                <div ref={globeContainerRef} className="absolute inset-0 z-0">
-                    <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(167,139,250,0.1)_0%,transparent_80%)] dark:bg-[radial-gradient(ellipse_at_center,rgba(99,91,255,0.15)_0%,transparent_80%)]" />
-                    <Image src="/globe.svg" alt="Abstract globe" fill priority className="object-cover opacity-10 dark:opacity-20" />
-                </div>
-                <div ref={heroContentRef} className="relative z-10 p-4 sm:p-6 flex flex-col items-center">
-                    <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold mb-6 leading-tight">
-                        <span className="hero-title block text-transparent bg-clip-text bg-gradient-to-r from-stripe-purple to-pink-600 dark:from-purple-400 dark:to-pink-400">
-                            Build for growth
-                        </span>
-                    </h1>
-                    <p className="text-base sm:text-lg text-muted-foreground mb-8 max-w-lg md:max-w-2xl mx-auto">
-                        The world’s most successful platforms are built on our infrastructure. We’ve created a fully integrated suite of powerful developer tools to help you grow your business.
-                    </p>
-                    <button className="bg-stripe-dark text-white dark:bg-primary-foreground dark:text-primary px-7 sm:px-8 py-3 rounded-full font-semibold shadow-lg hover:scale-105 transition-transform duration-300">
-                        Start now
-                    </button>
-                </div>
-            </div>
-        </section>
-    );
+// Framer Motion variants for the text
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.15, delayChildren: 0.2 },
+  },
 };
 
-export default Home;
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] },
+  },
+};
+
+export default function Home() {
+  return (
+    <section
+      id="home"
+      className="relative w-full h-screen min-h-[800px] flex items-center bg-[#0d1120] text-white overflow-hidden"
+    >
+      <div className="absolute inset-0 z-0 h-full w-full bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:36px_36px]" />
+
+      <motion.div
+        className="container mx-auto relative z-10 grid md:grid-cols-2 gap-10 lg:gap-16 items-center px-6 lg:px-8"
+        variants={containerVariants}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.5 }}
+      >
+        <div className="text-center md:text-left">
+          <motion.h1
+            variants={itemVariants}
+            className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-tight"
+          >
+            Complete, fully
+            <br />
+            configurable
+            <br />
+            <span className="text-indigo-400">AI Agent</span> system
+          </motion.h1>
+
+          <motion.p
+            variants={itemVariants}
+            className="mt-6 max-w-lg mx-auto md:mx-0 text-base lg:text-lg text-slate-300 leading-relaxed"
+          >
+            Our platform is the only complete, configurable AI Agent System in customer service—empowering teams to customize, test, and continuously improve through a no-code experience.
+          </motion.p>
+
+          <motion.div
+            variants={itemVariants}
+            className="mt-10 flex flex-col sm:flex-row items-center justify-center md:justify-start gap-4"
+          >
+            <button className="group w-full sm:w-auto px-6 py-3 bg-white text-black font-semibold rounded-md hover:scale-105 transition-transform duration-300 flex items-center justify-center gap-2 shadow-lg">
+              Start free trial
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </button>
+            <button className="w-full sm:w-auto px-6 py-3 font-semibold rounded-md text-slate-300 hover:text-white hover:bg-slate-800/50 hover:scale-105 transition-all duration-300">
+              View demo
+            </button>
+          </motion.div>
+        </div>
+
+        <div className="relative w-full h-[450px] lg:h-[500px]">
+          <Suspense fallback={<div className="w-full h-full" />}>
+            <HeroAnimation />
+          </Suspense>
+        </div>
+      </motion.div>
+    </section>
+  );
+}

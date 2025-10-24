@@ -1,152 +1,88 @@
-
 /* --- SHARED & MOBILE-FIRST DEFAULTS --- */
 .animation-placeholder { width: 100%; aspect-ratio: 4 / 3; }
 .product-grid-mobile { width: 100%; padding: 0 1rem; display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; }
 @media (min-width: 640px) { .product-grid-mobile { grid-template-columns: repeat(3, 1fr); gap: 1.5rem; } }
 
 .product-block-mobile {
-    background-color: white;
-    border: 1px solid #f1f5f9;
-    border-radius: 1rem;
-    padding: 1.5rem 1rem;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 4px 10px -2px rgba(0,0,0,0.04);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    visibility: hidden; /* For GSAP */
+    background-color: white; border: 1px solid #f1f5f9; border-radius: 1rem; padding: 1.5rem 1rem;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    box-shadow: 0 4px 10px -2px rgba(0,0,0,0.04); transition: transform 0.3s ease, box-shadow 0.3s ease;
+    visibility: hidden;
 }
 .dark .product-block-mobile { background-color: #0f172a; border-color: #1e293b; }
 .product-block-mobile:hover { transform: translateY(-4px); box-shadow: 0 10px 20px -5px rgba(0,0,0,0.1); }
+
 .icon-container-mobile {
-    width: 48px; height: 48px;
-    border-radius: 0.75rem;
-    display: flex; align-items: center; justify-content: center;
-    margin-bottom: 1rem;
-    background-color: color-mix(in srgb, var(--product-color) 15%, transparent);
-    color: var(--product-color);
+    width: 48px; height: 48px; border-radius: 0.75rem; display: flex; align-items: center; justify-content: center;
+    margin-bottom: 1rem; background-color: color-mix(in srgb, var(--product-color) 15%, transparent); color: var(--product-color);
 }
 .icon-container-mobile svg { width: 24px; height: 24px; }
-
 .product-label-mobile { font-size: 0.875rem; font-weight: 500; text-align: center; color: #334155; }
 .dark .product-label-mobile { color: #e2e8f0; }
 
 /* --- DESKTOP-ONLY STYLES (LG Breakpoint) --- */
 @media (min-width: 1024px) {
     .animation-stage {
-        position: relative;
-        width: 100%;
-        max-width: 900px;
-        height: 600px;
-        margin-inline: auto;
-        user-select: none;
+        position: relative; width: 100%; max-width: 900px; height: 600px;
+        margin-inline: auto; user-select: none;
     }
 
-    /* Precise positions for each product node's CENTER */
-    #billing    { top: 10%; left: 15%; }
-    #invoicing  { top: 10%; left: 40%; }
-    #tax        { top: 10%; left: 65%; }
-
-    #connect    { top: 30%; left: 15%; }
-    #issuing    { top: 30%; left: 40%; }
-    #payments   { top: 30%; left: 65%; }
-
-    #capital    { top: 50%; left: 15%; }
-    #terminal   { top: 50%; left: 40%; }
-    #radar      { top: 50%; left: 65%; }
-
+    /* Precise CSS positions for each product node's CENTER */
+    #billing    { top: 10%; left: 15%; } #invoicing  { top: 10%; left: 40%; } #tax { top: 10%; left: 65%; }
+    #connect    { top: 30%; left: 15%; } #issuing    { top: 30%; left: 40%; } #payments { top: 30%; left: 65%; }
+    #capital    { top: 50%; left: 15%; } #terminal   { top: 50%; left: 40%; } #radar { top: 50%; left: 65%; }
     #treasury   { top: 70%; left: 40%; }
 
     .product-node {
-        position: absolute;
-        transform: translate(-50%, -50%);
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        width: 70px;
-        visibility: hidden; /* For GSAP */
+        position: absolute; transform: translate(-50%, -50%); display: flex; flex-direction: column;
+        align-items: center; width: 80px; visibility: hidden;
     }
 
     .product-box {
-        width: 70px;
-        height: 70px;
-        border-radius: 1rem;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background-color: white;
-        border: 1.5px solid #eef2ff;
-        box-shadow: 0 4px 12px -4px rgba(0,0,0,0.05);
-        color: #cbd5e1;
-        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        z-index: 10;
-        position: relative;
+        width: 70px; height: 70px; border-radius: 1rem; display: flex; align-items: center;
+        justify-content: center; background-color: white; border: 1.5px solid #eef2ff;
+        box-shadow: 0 4px 12px -4px rgba(0,0,0,0.05); color: #cbd5e1;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); z-index: 10; position: relative;
     }
-    .dark .product-box {
-        background-color: #020617;
-        border-color: #1e293b;
-        color: #475569;
-    }
+    .dark .product-box { background-color: #020617; border-color: #1e293b; color: #475569; }
 
     .product-label {
-        margin-top: 0.75rem;
-        font-size: 0.75rem;
-        font-weight: 500;
-        color: #64748b;
-        white-space: nowrap;
-        text-align: center;
+        margin-top: 0.75rem; font-size: 0.75rem; font-weight: 500;
+        color: #64748b; white-space: nowrap; text-align: center;
     }
     .dark .product-label { color: #94a3b8; }
 
     .icon-container { width: 24px; height: 24px; }
     .icon-container svg * {
-        fill: none;
-        stroke: currentColor;
-        stroke-linejoin: round;
-        stroke-linecap: round;
-        stroke-width: 1.5;
+        fill: none; stroke: currentColor; stroke-linejoin: round;
+        stroke-linecap: round; stroke-width: 1.5;
     }
-    /* Custom icon fill rules */
-    .fill-icon .icon-container svg * {
-        stroke: none;
-        fill: currentColor;
-    }
+    .fill-icon .icon-container svg * { stroke: none; fill: currentColor; }
 
     .product-node.is-glowing .product-box {
         border-color: var(--product-color);
-        /* Refined to a single, cleaner, soft glow for a more professional look */
-        box-shadow: 0 0 0 4px color-mix(in srgb, var(--product-color) 25%, transparent);
-        color: var(--product-color);
-        transform: scale(1.05);
+        box-shadow: 0 0 0 4px color-mix(in srgb, var(--product-color) 25%, transparent),
+                    0 0 20px 0 color-mix(in srgb, var(--product-color) 40%, transparent);
+        color: var(--product-color); transform: scale(1.05);
     }
-    .product-node.is-glowing .product-label {
-        color: #1e293b;
-    }
-    .dark .product-node.is-glowing .product-label {
-        color: #f1f5f9;
-    }
+    .product-node.is-glowing .product-label { color: #1e293b; }
+    .dark .product-node.is-glowing .product-label { color: #f1f5f9; }
 
     .svg-path-overlay {
-        position: absolute;
-        inset: 0;
-        pointer-events: none;
-        overflow: visible;
-        z-index: 5;
+        position: absolute; inset: 0; pointer-events: none;
+        overflow: visible; z-index: 5;
     }
     
-    .path-group {
-        /* This transform is not strictly needed with the buffer in JS, but provides a fallback alignment */
-        transform: translateY(0); 
-    }
-
-    .path-dash {
+    .path-line {
         stroke-width: 2.5px;
         fill: none;
-        stroke-linecap: round; /* Rounded line ends for a softer look */
+        stroke-linecap: round;
         stroke-linejoin: round;
-        opacity: 0; /* Handled by GSAP */
-        filter: drop-shadow(0 1px 4px rgba(0,0,0,0.1));
-        transition: opacity 0.3s ease;
+        filter: drop-shadow(0 0 4px rgba(0,0,0,0.2));
+        will-change: stroke-dashoffset, opacity;
+    }
+    .dark .path-line {
+        /* Add a subtle glow to the line in dark mode */
+        filter: drop-shadow(0 0 5px currentColor);
     }
 }

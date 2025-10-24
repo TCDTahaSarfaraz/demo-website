@@ -1,13 +1,45 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  darkMode: "class", 
-    content: [
+  darkMode: "class",
+  content: [
     './pages/**/*.{js,ts,jsx,tsx,mdx}',
     './components/**/*.{js,ts,jsx,tsx,mdx}',
     './app/**/*.{js,ts,jsx,tsx,mdx}',
   ],
   theme: {
-  	extend: {
+    // ---- ADDED FOR RESPONSIVENESS ----
+    container: {
+      center: true, // Automatically centers the container
+      padding: {
+        DEFAULT: '1rem', // Default padding
+        sm: '2rem',      // Padding for small screens and up
+        lg: '4rem',      // Padding for large screens and up
+        xl: '5rem',      // etc.
+      },
+    },
+	 fontFamily: {
+      sans: ['var(--font-inter)', 'sans-serif'],
+      serif: ['var(--font-playfair)', 'serif'],
+    },
+    screens: {
+      sm: '640px',
+      // => @media (min-width: 640px) { ... }
+
+      md: '768px',
+      // => @media (min-width: 768px) { ... }
+
+      lg: '1024px',
+      // => @media (min-width: 1024px) { ... }
+
+      xl: '1280px',
+      // => @media (min-width: 1280px) { ... }
+
+      '2xl': '1536px',
+      // => @media (min-width: 1536px) { ... }
+    },
+    // ---- END OF ADDITIONS ----
+
+  	extend: { // Your custom styles are preserved here
   		colors: {
   			'stripe-purple': '#635BFF',
   			'stripe-dark': '#0A2540',
@@ -52,10 +84,12 @@ module.exports = {
   				'5': 'hsl(var(--chart-5))'
   			}
   		},
-  		animation: {
-  			float: 'float 6s ease-in-out infinite'
+  		borderRadius: {
+  			lg: 'var(--radius)',
+  			md: 'calc(var(--radius) - 2px)',
+  			sm: 'calc(var(--radius) - 4px)'
   		},
-  		keyframes: {
+      keyframes: {
   			float: {
   				'0%, 100%': {
   					transform: 'translateY(0px)'
@@ -65,12 +99,13 @@ module.exports = {
   				}
   			}
   		},
-  		borderRadius: {
-  			lg: 'var(--radius)',
-  			md: 'calc(var(--radius) - 2px)',
-  			sm: 'calc(var(--radius) - 4px)'
-  		}
+      animation: {
+  			float: 'float 6s ease-in-out infinite'
+  		},
   	}
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [
+    require("tailwindcss-animate"),
+    require('@tailwindcss/typography'), // <-- ADDED PLUGIN
+  ],
 };

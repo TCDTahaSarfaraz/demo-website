@@ -1,4 +1,5 @@
 import { Manrope } from 'next/font/google'; // 1. Import the font for optimization
+import { Playfair_Display, Inter } from 'next/font/google';
 import './globals.css';
 
 // 2. Import the essential, persistent components
@@ -7,6 +8,9 @@ import Navbar from '../app/components/Navbar';
 import Footer from '../app/components/Footer';
 
 // 3. Configure the font with subsets and display swapping for performance
+const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
+const playfair = Playfair_Display({ subsets: ['latin'], variable: '--font-playfair' });
+
 const manrope = Manrope({
   subsets: ['latin'],
   display: 'swap',
@@ -28,7 +32,7 @@ export default function RootLayout({ children }) {
         <Providers>
           <Navbar />
           <main id="main-content">
-            {children} {/* This is where your Page components will be rendered */}
+            {children} 
           </main>
           <Footer />
         </Providers>

@@ -1,122 +1,134 @@
+// File: app/components/Testimonials.js - NEW MODERNIZED VERSION
 'use client';
-import React, { useState, useEffect, useLayoutEffect, useRef } from 'react';
-import { gsap } from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
-gsap.registerPlugin(ScrollTrigger);
+import React, { useState, useRef } from 'react';
+import { motion, useInView } from 'framer-motion';
+import { Quote } from 'lucide-react';
 
+// --- Testimonials Data ---
 const testimonials = [
-  { color: "indigo", name: "@john", quote: "Outstanding results and exceptional service - @john", pos: [8, 19, 33], avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=John" },
-  { color: "orange", name: "@sarah", quote: "Efficient, professional, and dedicated - @sarah", pos: [15, 45, 28], avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah" },
-  { color: "green", name: "@rayana", quote: "Consistently outstanding service!! - @rayana", pos: [12, 78, 25], avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Rayana" },
-  { color: "rose", name: "@emily", quote: "Exceeds expectations every time - @emily", pos: [42, 18, 26], avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Emily" },
-  { color: "purple", name: "@priya", quote: "Sleek designs, exceptional service - @priya", pos: [48, 50, 29], avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Priya" },
-  { color: "gray", name: "@harsh", quote: '"Exceptional designs, unmatched quality." - @harsh', pos: [45, 82, 28], avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Harsh" },
-  { color: "pink", name: "@olivia", quote: "Consistently delivers excellence! - @olivia", pos: [75, 18, 30], avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Olivia" },
-  { color: "sky", name: "@jane", quote: "Designs that speak volumes - @jane", pos: [78, 65, 28], avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Jane" },
+    { name: "@john", title: "CEO, Innovate Inc.", quote: "The results were outstanding. Their dedication and exceptional service are second to none.", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=John" },
+    { name: "@sarah", title: "Marketing Director", quote: "Working with them was a game-changer. Incredibly efficient, professional, and dedicated to our success.", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah" },
+    { name: "@rayana", title: "Lead Designer", quote: "They consistently provide an outstanding service that is both reliable and creatively inspiring. Highly recommended!", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Rayana" },
+    { name: "@emily", title: "Product Manager", quote: "This team exceeds expectations every single time. Their attention to detail is remarkable.", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Emily" },
+    { name: "@priya", title: "Startup Founder", quote: "From sleek designs to exceptional customer service, they delivered on all fronts. A true partner.", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Priya" },
+    { name: "@harsh", title: "CTO, Tech Solutions", quote: "Their designs are not just visually exceptional, the underlying quality and code are absolutely unmatched.", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Harsh" },
 ];
 
-const useMediaQuery = (query) => {
-  const [matches, setMatches] = useState(false);
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    const media = window.matchMedia(query);
-    const listener = () => setMatches(media.matches);
-    listener();
-    media.addEventListener('change', listener);
-    return () => media.removeEventListener('change', listener);
-  }, [query]);
-  return matches;
+// --- 1. A SUPERIOR, MODERNIZED TESTIMONIAL CARD UI ---
+const TestimonialCard = ({ name, title, quote, avatar }) => {
+    return (
+        <div className="flex-shrink-0 w-full bg-white/5 backdrop-blur-xl p-8 rounded-3xl shadow-2xl border border-white/10 flex flex-col justify-between">
+            <Quote className="w-10 h-10 text-indigo-300/50 mb-4" strokeWidth={1.5} />
+            <p className="text-lg text-gray-200 font-light leading-relaxed flex-grow">
+                {quote}
+            </p>
+            <div className="flex items-center gap-4 mt-8 pt-6 border-t border-white/10">
+                <img src={avatar} alt={name} className="w-14 h-14 object-cover rounded-full bg-white/20 p-1" />
+                <div>
+                    <p className="font-bold text-lg text-white">{name}</p>
+                    <p className="text-sm text-indigo-200">{title}</p>
+                </div>
+            </div>
+        </div>
+    );
 };
 
-const TestimonialCard = ({ quote, name, avatar, color }) => {
-  const colorVariants = {
-    indigo: { card: 'bg-indigo-50', text: 'text-indigo-900', avatar: 'bg-indigo-100' },
-    orange: { card: 'bg-orange-50', text: 'text-orange-900', avatar: 'bg-orange-100' },
-    green:  { card: 'bg-green-50', text: 'text-green-900', avatar: 'bg-green-100' },
-    rose:   { card: 'bg-rose-50', text: 'text-rose-900', avatar: 'bg-rose-100' },
-    purple: { card: 'bg-purple-50', text: 'text-purple-900', avatar: 'bg-purple-100' },
-    gray:   { card: 'bg-gray-100', text: 'text-gray-800', avatar: 'bg-gray-200' },
-    pink:   { card: 'bg-pink-50', text: 'text-pink-900', avatar: 'bg-pink-100' },
-    sky:    { card: 'bg-sky-50', text: 'text-sky-900', avatar: 'bg-sky-100' },
-  };
 
-  const classes = colorVariants[color] || colorVariants.gray;
-
-  return (
-    <div className={`flex items-center gap-4 p-4 rounded-xl shadow-sm transition-transform duration-300 hover:-translate-y-1 ${classes.card}`}>
-      <div className={`w-12 h-12 rounded-lg p-1 flex-shrink-0 ${classes.avatar}`}>
-        <img src={avatar} alt={name} className="w-full h-full object-cover rounded-md" />
-      </div>
-      <p className={`text-sm font-medium leading-relaxed ${classes.text}`}>{quote}</p>
-    </div>
-  );
-};
-
+// --- 2. THE MAIN COMPONENT WITH ADVANCED DRAG & SNAPPING LOGIC ---
 const Testimonials = () => {
-  const isDesktop = useMediaQuery('(min-width: 1024px)');
-  const containerRef = useRef(null);
+    const sectionRef = useRef(null);
+    const [currentIndex, setCurrentIndex] = useState(0);
 
-  useLayoutEffect(() => {
-    if (!isDesktop || !containerRef.current) {
-      gsap.set(".testimonial-card-wrapper", { clearProps: "all" });
-      return;
-    }
+    const isInView = useInView(sectionRef, { once: true, amount: 0.3 });
 
-    const cards = gsap.utils.toArray(".testimonial-card-wrapper");
-    
-    const ctx = gsap.context(() => {
-      gsap.set(cards, {
-        position: 'absolute', xPercent: -50, yPercent: -50,
-        top: "50%", left: "50%",
-        scale: 0.5, opacity: 0,
-      });
-
-      gsap.to(cards, {
-        scale: 1, opacity: 1,
-        duration: 1.2,
-        ease: "power3.out",
-        stagger: { amount: 1, from: "random" },
-        top: (i) => `${testimonials[i].pos[0]}%`,
-        left: (i) => `${testimonials[i].pos[1]}%`,
-        width: (i) => `${testimonials[i].pos[2]}%`,
-        scrollTrigger: {
-          trigger: containerRef.current,
-          start: "top 80%",
-          end: "bottom bottom",
-          toggleActions: "play none none reverse",
+    const headerVariants = {
+        hidden: { opacity: 0, y: 50 },
+        visible: {
+            opacity: 1,
+            y: 0,
+            transition: { duration: 0.8, ease: "easeOut" },
         },
-      });
-    }, containerRef);
+    };
+    
+    // This function handles the snapping and inertia
+    const onDragEnd = (event, info) => {
+        const { offset, velocity } = info;
+        const swipeThreshold = 50; // Minimum drag distance to trigger a slide
+        const swipePower = Math.abs(velocity.x) * 0.1;
 
-    return () => ctx.revert();
-  }, [isDesktop]);
+        if (offset.x < -swipeThreshold || swipePower > 50) {
+            // Swipe Left
+            setCurrentIndex((prev) => Math.min(prev + 1, testimonials.length - 1));
+        } else if (offset.x > swipeThreshold || swipePower > 50) {
+            // Swipe Right
+            setCurrentIndex((prev) => Math.max(prev - 1, 0));
+        }
+    };
 
-  return (
-    <section id="testimonials" className="relative w-full bg-white py-20 md:py-28 overflow-hidden">
-      <div className="relative z-10 container mx-auto px-4 md:px-8">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-12 md:mb-20">
-          <div className="text-center md:text-left">
-            <p className="text-sm font-semibold text-gray-500 tracking-wider">12K + HAPPY CLIENTS</p>
-            <h2 className="text-3xl sm:text-4xl font-bold mt-2 text-gray-900">Client Experiences</h2>
-          </div>
-          <a href="#" className="self-center md:self-auto mt-6 md:mt-0 flex items-center gap-2 font-semibold text-gray-600 hover:text-indigo-600 transition-colors">
-            Read All Reviews →
-          </a>
-        </div>
-        
-        <div className="flex justify-center">
-          <div ref={containerRef} className={isDesktop ? 'relative w-full max-w-6xl h-[600px] lg:h-[700px]' : 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl'}>
-            {testimonials.map((testimonial, i) => (
-              <div key={i} className={isDesktop ? 'testimonial-card-wrapper' : ''}>
-                <TestimonialCard {...testimonial} />
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    </section>
-  );
+    return (
+        <section ref={sectionRef} id="testimonials" className="relative w-full py-24 md:py-32 overflow-hidden bg-slate-900">
+            {/* The beautiful gradient background */}
+            <motion.div
+                className="absolute inset-0 z-0"
+                style={{
+                    backgroundImage: 'linear-gradient(to right, #1e3a8a, #4c1d95, #86198f)',
+                    backgroundSize: '200% 200%',
+                }}
+                animate={{ backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'] }}
+                transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
+            />
+            <div className="absolute inset-0 z-[1] bg-black/40" />
+            
+            <div className="relative z-10 container mx-auto px-4 md:px-8">
+                {/* Section Header */}
+                <motion.div
+                    className="text-center max-w-3xl mx-auto"
+                    variants={headerVariants}
+                    initial="hidden"
+                    animate={isInView ? 'visible' : 'hidden'}
+                >
+                    <p className="font-semibold text-indigo-300 tracking-wider">VOICES OF SUCCESS</p>
+                    <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mt-3 text-white">
+                        What Our Partners Are Saying
+                    </h2>
+                </motion.div>
+                
+                {/* The Draggable Carousel */}
+                <div className="relative mt-20 max-w-xl mx-auto h-[450px]">
+                    <motion.div
+                        className="absolute inset-0 flex items-center"
+                        animate={{ x: `-${currentIndex * 100}%` }}
+                        transition={{ type: 'spring', stiffness: 300, damping: 30 }} // This creates the SNAP animation
+                        drag="x"
+                        dragConstraints={{ left: 0, right: 0 }} // This defines the BOUNDS
+                        onDragEnd={onDragEnd}
+                        dragElastic={0.1}
+                    >
+                        {testimonials.map((testimonial, i) => (
+                            <div key={i} className="flex-shrink-0 w-full h-full px-4">
+                               <TestimonialCard {...testimonial} />
+                            </div>
+                        ))}
+                    </motion.div>
+                </div>
+                
+                {/* --- 3. UI IMPROVEMENT: PAGINATION DOTS --- */}
+                <div className="flex justify-center gap-3 mt-8">
+                    {testimonials.map((_, i) => (
+                        <button
+                            key={i}
+                            onClick={() => setCurrentIndex(i)}
+                            className={`w-2.5 h-2.5 rounded-full transition-colors duration-300 ${
+                                currentIndex === i ? 'bg-white' : 'bg-white/30 hover:bg-white/50'
+                            }`}
+                            aria-label={`Go to testimonial ${i + 1}`}
+                        />
+                    ))}
+                </div>
+            </div>
+        </section>
+    );
 };
 
 export default Testimonials;
